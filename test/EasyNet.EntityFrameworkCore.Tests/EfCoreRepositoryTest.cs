@@ -18,15 +18,10 @@ namespace EasyNet.EntityFrameworkCore.Tests
 {
     public class EfCoreRepositoryTest
     {
-        //private readonly DatabaseFixture _fixture;
         private readonly IServiceProvider _serviceProvider;
-
 
         public EfCoreRepositoryTest()
         {
-            //_fixture = fixture;
-
-
             var services = new ServiceCollection();
 
             services
@@ -52,11 +47,13 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             // Act
             var users = userRepo.GetAllList();
-            uow.Complete();
 
             // Assert
             Assert.Equal(4, users.Count);
-            Assert.Equal("Name2", users[1].Name);
+            Assert.Equal("User2", users[1].Name);
+
+            // Complete uow
+            uow.Complete();
         }
 
         [Fact]
@@ -68,11 +65,13 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             // Act
             var users = userRepo.GetAllList(p => p.Status == Status.Active);
-            uow.Complete();
 
             // Assert
             Assert.Equal(3, users.Count);
-            Assert.Equal("Name4", users[2].Name);
+            Assert.Equal("User4", users[2].Name);
+
+            // Complete uow
+            uow.Complete();
         }
 
         [Fact]
@@ -84,11 +83,13 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             // Act
             var users = await userRepo.GetAllListAsync();
-            await uow.CompleteAsync();
 
             // Assert
             Assert.Equal(4, users.Count);
-            Assert.Equal("Name2", users[1].Name);
+            Assert.Equal("User2", users[1].Name);
+
+            // Complete uow
+            await uow.CompleteAsync();
         }
 
         [Fact]
@@ -100,11 +101,139 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             // Act
             var users = await userRepo.GetAllListAsync(p => p.Status == Status.Active);
-            await uow.CompleteAsync();
 
             // Assert
             Assert.Equal(3, users.Count);
-            Assert.Equal("Name4", users[2].Name);
+            Assert.Equal("User4", users[2].Name);
+
+            // Complete uow
+            await uow.CompleteAsync();
+        }
+
+        #endregion
+
+        #region Insert
+
+        [Fact]
+        public void TestInsert()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
+
+            #region Insert but not SaveChanges
+
+            // Act
+            var user5 = new User
+            {
+                Name = "User5",
+                RoleId = 1
+            };
+            userRepo.Insert(user5);
+
+            // Assert
+            Assert.Equal(0, user5.Id);
+            Assert.Null(userRepo.SingleOrDefault(p => p.Id == 5));
+
+            #endregion
+
+            #region SaveChanges
+
+            // Act
+            ((IUnitOfWork)uow).SaveChanges();
+
+            // Assert
+            Assert.Equal(5, user5.Id);
+            Assert.NotNull(userRepo.SingleOrDefault(p => p.Id == 5));
+
+            #endregion
+
+            // Complete uow
+            uow.Complete();
+        }
+
+        [Fact]
+        public async Task TestInsertAsync()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
+
+            #region Insert but not SaveChanges
+
+            // Act
+            var user5 = new User
+            {
+                Name = "User5",
+                RoleId = 1
+            };
+            await userRepo.InsertAsync(user5);
+
+            // Assert
+            Assert.Equal(0, user5.Id);
+            Assert.Null(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+
+            #endregion
+
+            #region SaveChanges
+
+            // Act
+            await ((IUnitOfWork)uow).SaveChangesAsync();
+
+            // Assert
+            Assert.Equal(5, user5.Id);
+            Assert.NotNull(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+
+            #endregion
+
+            // Complete uow
+            await uow.CompleteAsync();
+        }
+
+        [Fact]
+        public void TestInsertAndGetId()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
+
+            // Act
+            var user5 = new User
+            {
+                Name = "User5",
+                RoleId = 1
+            };
+            userRepo.InsertAndGetId(user5);
+
+            // Assert
+            Assert.Equal(5, user5.Id);
+            Assert.NotNull(userRepo.SingleOrDefault(p => p.Id == 5));
+
+            // Complete uow
+            uow.Complete();
+        }
+
+        [Fact]
+        public async Task TestInsertAndGetIdAsync()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
+
+            // Act
+            var user5 = new User
+            {
+                Name = "User5",
+                RoleId = 1
+            };
+            await userRepo.InsertAndGetIdAsync(user5);
+
+            // Assert
+            Assert.Equal(5, user5.Id);
+            Assert.NotNull(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+
+            // Complete uow
+            await uow.CompleteAsync();
         }
 
         #endregion
@@ -494,14 +623,20 @@ namespace EasyNet.EntityFrameworkCore.Tests
             var context = _serviceProvider.GetService<EfCoreContext>();
             context.Database.EnsureCreated();
 
-            context.Users.AddRange(new List<User>
-            {
-                new User{Name = "Name1", Status = Status.Active},
-                new User{Name = "Name2", Status = Status.Active},
-                new User{Name = "Name3", Status = Status.Inactive},
-                new User{Name = "Name4", Status = Status.Active}
-            });
+            // Insert default roles
+            context.Roles.Add(new Role {Name = "Admin"});
+            context.SaveChanges();
+            context.Roles.Add(new Role { Name = "User" });
+            context.SaveChanges();
 
+            // Insert default users
+            context.Users.Add(new User {Name = "User1", Status = Status.Active, RoleId = 1});
+            context.SaveChanges();
+            context.Users.Add(new User {Name = "User2", Status = Status.Active, RoleId = 2});
+            context.SaveChanges();
+            context.Users.Add(new User { Name = "User3", Status = Status.Inactive, RoleId = 2 });
+            context.SaveChanges();
+            context.Users.Add(new User { Name = "User4", Status = Status.Active, RoleId = 2 });
             context.SaveChanges();
         }
 

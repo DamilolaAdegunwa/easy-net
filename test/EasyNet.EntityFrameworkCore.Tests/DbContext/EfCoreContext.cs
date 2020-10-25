@@ -5,7 +5,7 @@ namespace EasyNet.EntityFrameworkCore.Tests.DbContext
 {
     public class EfCoreContext : EasyNetDbContext
     {
-        public EfCoreContext(DbContextOptions options) :base(options)
+        public EfCoreContext(DbContextOptions options) : base(options)
         {
         }
 

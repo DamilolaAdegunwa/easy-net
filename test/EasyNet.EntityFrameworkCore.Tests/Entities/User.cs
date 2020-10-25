@@ -11,7 +11,9 @@ namespace EasyNet.EntityFrameworkCore.Tests.Entities
 
         public Status Status { get; set; }
 
-        public virtual ICollection<Role> Roles { get; set; }
+        public int RoleId { get; set; }
+
+        public virtual Role Role { get; set; }
     }
 
     public enum Status
