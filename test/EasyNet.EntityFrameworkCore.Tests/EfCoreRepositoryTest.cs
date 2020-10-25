@@ -1,23 +1,44 @@
 using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading.Tasks;
+using EasyNet.DependencyInjection;
 using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 using EasyNet.Domain.Uow;
-using EasyNet.EntityFrameworkCore.Repositories;
+using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.EntityFrameworkCore.Tests.DbContext;
 using EasyNet.EntityFrameworkCore.Tests.Entities;
-using EasyNet.EntityFrameworkCore.Tests.Fixture;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace EasyNet.EntityFrameworkCore.Tests
 {
-    public class EfCoreRepositoryTest : IClassFixture<DatabaseFixture>
+    public class EfCoreRepositoryTest
     {
-        private readonly DatabaseFixture _fixture;
+        //private readonly DatabaseFixture _fixture;
+        private readonly IServiceProvider _serviceProvider;
 
-        public EfCoreRepositoryTest(DatabaseFixture fixture)
+
+        public EfCoreRepositoryTest()
         {
-            _fixture = fixture;
+            //_fixture = fixture;
+
+
+            var services = new ServiceCollection();
+
+            services
+                .AddEasyNet()
+                .AddEfCore<EfCoreContext>(options =>
+                {
+                    options.UseSqlite(CreateInMemoryDatabase());
+                });
+
+            _serviceProvider = services.BuildServiceProvider();
+
+            InitData();
         }
 
         #region GetAllList
@@ -25,14 +46,13 @@ namespace EasyNet.EntityFrameworkCore.Tests
         [Fact]
         public void TestGetAllList()
         {
-            var uowManger = _fixture.ServiceProvider.GetService(typeof(IUnitOfWorkManager));
-            var uowMang1er = _fixture.ServiceProvider.GetService(typeof(ICurrentUnitOfWorkProvider));
             // Arrange
-            //using var uow = _fixture.BeginUow();
-            var userRepo = _fixture.GetRepository<User, long>();
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
 
             // Act
             var users = userRepo.GetAllList();
+            uow.Complete();
 
             // Assert
             Assert.Equal(4, users.Count);
@@ -42,25 +62,29 @@ namespace EasyNet.EntityFrameworkCore.Tests
         [Fact]
         public void TestGetAllListByPredicate()
         {
-            //// Arrange
-            //var userRepo = _fixture.GetRepository<User>();
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
 
-            //// Act
-            //var users = userRepo.GetAllList(p => p.Status == Status.Active);
+            // Act
+            var users = userRepo.GetAllList(p => p.Status == Status.Active);
+            uow.Complete();
 
-            //// Assert
-            //Assert.Equal(3, users.Count);
-            //Assert.Equal("Name4", users[2].Name);
+            // Assert
+            Assert.Equal(3, users.Count);
+            Assert.Equal("Name4", users[2].Name);
         }
 
         [Fact]
         public async Task TestGetAllListAsync()
         {
             // Arrange
-            var userRepo = _fixture.GetRepository<User, long>();
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
 
             // Act
             var users = await userRepo.GetAllListAsync();
+            await uow.CompleteAsync();
 
             // Assert
             Assert.Equal(4, users.Count);
@@ -70,15 +94,17 @@ namespace EasyNet.EntityFrameworkCore.Tests
         [Fact]
         public async Task TestGetAllListByPredicateAsync()
         {
-            //// Arrange
-            //var userRepo = _fixture.GetRepository<User>();
+            // Arrange
+            using var uow = BeginUow();
+            var userRepo = GetRepository<User, long>();
 
-            //// Act
-            //var users = await userRepo.GetAllListAsync(p => p.Status == Status.Active);
+            // Act
+            var users = await userRepo.GetAllListAsync(p => p.Status == Status.Active);
+            await uow.CompleteAsync();
 
-            //// Assert
-            //Assert.Equal(3, users.Count);
-            //Assert.Equal("Name4", users[2].Name);
+            // Assert
+            Assert.Equal(3, users.Count);
+            Assert.Equal("Name4", users[2].Name);
         }
 
         #endregion
@@ -453,5 +479,45 @@ namespace EasyNet.EntityFrameworkCore.Tests
         //}
 
         //#endregion
+
+        private DbConnection CreateInMemoryDatabase()
+        {
+            var connection = new SqliteConnection("Filename=:memory:");
+
+            connection.Open();
+
+            return connection;
+        }
+
+        private void InitData()
+        {
+            var context = _serviceProvider.GetService<EfCoreContext>();
+            context.Database.EnsureCreated();
+
+            context.Users.AddRange(new List<User>
+            {
+                new User{Name = "Name1", Status = Status.Active},
+                new User{Name = "Name2", Status = Status.Active},
+                new User{Name = "Name3", Status = Status.Inactive},
+                new User{Name = "Name4", Status = Status.Active}
+            });
+
+            context.SaveChanges();
+        }
+
+        public IUnitOfWorkCompleteHandle BeginUow()
+        {
+            return _serviceProvider.GetService<IUnitOfWorkManager>().Begin();
+        }
+
+        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity<int>
+        {
+            return _serviceProvider.GetService<IRepository<TEntity>>();
+        }
+
+        public IRepository<TEntity, TPrimaryKey> GetRepository<TEntity, TPrimaryKey>() where TEntity : class, IEntity<TPrimaryKey>
+        {
+            return _serviceProvider.GetService<IRepository<TEntity, TPrimaryKey>>();
+        }
     }
 }

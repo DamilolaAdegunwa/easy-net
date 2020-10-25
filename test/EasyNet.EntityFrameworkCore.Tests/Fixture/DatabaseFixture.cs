@@ -17,9 +17,6 @@ namespace EasyNet.EntityFrameworkCore.Tests.Fixture
 {
     public class DatabaseFixture : IDisposable
     {
-        private IUnitOfWorkCompleteHandle _uow;
-        private IUnitOfWorkManager _uowManager;
-
         public DatabaseFixture()
         {
             var services = new ServiceCollection();
@@ -49,28 +46,21 @@ namespace EasyNet.EntityFrameworkCore.Tests.Fixture
 
         private void InitData()
         {
-            _uowManager = ServiceProvider.GetService<IUnitOfWorkManager>();
-            _uow = _uowManager.Begin(new UnitOfWorkOptions { IsTransactional = false });
-
-            //var current = ServiceProvider.GetService<ICurrentUnitOfWorkProvider>();
-            //var abc = ServiceProvider.GetServices<IRepository<User, long>>();
-            //var context = ServiceProvider.GetService<EfCoreContext>();
-            //context.Database.EnsureCreated();
-            //context.Users.AddRange(new List<User>
-            //    {
-            //        new User{Name = "Name1", Status = Status.Active},
-            //        new User{Name = "Name2", Status = Status.Active},
-            //        new User{Name = "Name3", Status = Status.Inactive},
-            //        new User{Name = "Name4", Status = Status.Active}
-            //    });
-            //context.SaveChanges();
-
+            var context = ServiceProvider.GetService<EfCoreContext>();
+            context.Database.EnsureCreated();
+            context.Users.AddRange(new List<User>
+                {
+                    new User{Name = "Name1", Status = Status.Active},
+                    new User{Name = "Name2", Status = Status.Active},
+                    new User{Name = "Name3", Status = Status.Inactive},
+                    new User{Name = "Name4", Status = Status.Active}
+                });
+            context.SaveChanges();
         }
 
         public IUnitOfWorkCompleteHandle BeginUow()
         {
-            return ServiceProvider.GetService<IUnitOfWorkManager>()
-                .Begin(new UnitOfWorkOptions { IsTransactional = false });
+            return ServiceProvider.GetService<IUnitOfWorkManager>().Begin();
         }
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity<int>
@@ -85,8 +75,6 @@ namespace EasyNet.EntityFrameworkCore.Tests.Fixture
 
         public void Dispose()
         {
-            _uow.Complete();
-            _uow.Dispose();
         }
     }
 }
