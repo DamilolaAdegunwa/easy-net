@@ -37,7 +37,7 @@ namespace EasyNet.Domain.Uow
 
             Id = Guid.NewGuid().ToString("N");
 
-            AbpSession = NullSession.Instance;
+            AbpSession = NullEasyNetSession.Instance;
         }
 
         /// <inheritdoc/>
@@ -69,9 +69,9 @@ namespace EasyNet.Domain.Uow
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Reference to current <see cref="ISession"/>.
+        /// Reference to current <see cref="IEasyNetSession"/>.
         /// </summary>
-        public ISession AbpSession { protected get; set; }
+        public IEasyNetSession AbpSession { protected get; set; }
 
         /// <inheritdoc/>
         public void Begin(UnitOfWorkOptions options)
