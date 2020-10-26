@@ -1,5 +1,6 @@
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Entities;
@@ -476,7 +477,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
-			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			#region Insert but not SaveChanges
 
@@ -490,7 +490,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(0, user5.Id);
-			Assert.Null(userRepo.SingleOrDefault(p => p.Id == 5));
+			Assert.Equal(4, userRepo.GetQueryTable().AsNoTracking().Count());
 
 			#endregion
 
@@ -501,7 +501,8 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(5, user5.Id);
-			Assert.NotNull(userRepo.SingleOrDefault(p => p.Id == 5));
+			Assert.NotNull(userRepo.GetQueryTable().AsNoTracking().SingleOrDefault(p => p.Id == 5));
+			Assert.Equal(5, userRepo.GetQueryTable().AsNoTracking().Count());
 
 			#endregion
 
@@ -515,7 +516,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
-			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			#region Insert but not SaveChanges
 
@@ -529,7 +529,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(0, user5.Id);
-			Assert.Null(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+			Assert.Equal(4, await userRepo.GetQueryTable().AsNoTracking().CountAsync());
 
 			#endregion
 
@@ -540,7 +540,8 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(5, user5.Id);
-			Assert.NotNull(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+			Assert.Equal(5, await userRepo.GetQueryTable().AsNoTracking().CountAsync());
+			Assert.NotNull(await userRepo.GetQueryTable().AsNoTracking().SingleOrDefaultAsync(p => p.Id == 5));
 
 			#endregion
 
@@ -554,7 +555,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
-			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			// Act
 			var user5 = new User
@@ -566,7 +566,8 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(5, user5.Id);
-			Assert.NotNull(userRepo.SingleOrDefault(p => p.Id == 5));
+			Assert.NotNull(userRepo.GetQueryTable().AsNoTracking().SingleOrDefault(p => p.Id == 5));
+			Assert.Equal(5, userRepo.GetQueryTable().AsNoTracking().Count());
 
 			// Complete uow
 			uow.Complete();
@@ -578,7 +579,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
-			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			// Act
 			var user5 = new User
@@ -590,7 +590,8 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 			// Assert
 			Assert.Equal(5, user5.Id);
-			Assert.NotNull(await userRepo.SingleOrDefaultAsync(p => p.Id == 5));
+			Assert.Equal(5, await userRepo.GetQueryTable().AsNoTracking().CountAsync());
+			Assert.NotNull(await userRepo.GetQueryTable().AsNoTracking().SingleOrDefaultAsync(p => p.Id == 5));
 
 			// Complete uow
 			await uow.CompleteAsync();
@@ -606,7 +607,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
-			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			#region Get then update
 
@@ -616,31 +616,27 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			userRepo.Update(user1);
 			((IUnitOfWork)uow).SaveChanges();
 
-			user1 = userRepo.Get(1);
-
 			// Assert
-			Assert.Equal("TestUser1", user1.Name);
+			Assert.Equal("TestUser1", userRepo.GetQueryTable().AsNoTracking().Single(p => p.Id == user1.Id).Name);
 
 			#endregion
 
-			//#region Attch
+			#region Attach
 
-			//// Act
-			//var user2 = new User
-			//{
-			//	Id = 2,
-			//	Name = "TestUser2",
-			//	RoleId = 1
-			//};
-			//userRepo.Update(user2);
-			//((IUnitOfWork)uow).SaveChanges();
+			// Act
+			var user2 = new User
+			{
+				Id = 2,
+				Name = "TestUser2",
+				RoleId = 1
+			};
+			userRepo.Update(user2);
+			((IUnitOfWork)uow).SaveChanges();
 
-			//user2 = userRepo.Get(2);
+			// Assert
+			Assert.Equal("TestUser1", userRepo.GetQueryTable().AsNoTracking().Single(p => p.Id == user2.Id).Name);
 
-			//// Assert
-			//Assert.Equal("TestUser2", user2.Name);
-
-			//#endregion
+			#endregion
 
 			// Complete uow
 			uow.Complete();
