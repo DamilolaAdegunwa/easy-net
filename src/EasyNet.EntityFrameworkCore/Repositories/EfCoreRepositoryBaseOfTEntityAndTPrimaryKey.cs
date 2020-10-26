@@ -4,18 +4,20 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
+using EasyNet.Domain.Entities.Auditing;
 using EasyNet.Domain.Repositories;
 using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.Timing;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
 {
-    /// <summary>
-    /// Implements IRepository for Entity Framework.
-    /// </summary>
-    /// <typeparam name="TDbContext">DbContext which contains <typeparamref name="TEntity"/>.</typeparam>
-    /// <typeparam name="TEntity">Type of the Entity for this repository</typeparam>
-    /// <typeparam name="TPrimaryKey">Primary key of the entity</typeparam>
+	/// <summary>
+	/// Implements IRepository for Entity Framework.
+	/// </summary>
+	/// <typeparam name="TDbContext">DbContext which contains <typeparamref name="TEntity"/>.</typeparam>
+	/// <typeparam name="TEntity">Type of the Entity for this repository</typeparam>
+	/// <typeparam name="TPrimaryKey">Primary key of the entity</typeparam>
 	public class EfCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey>, IRepositoryWithDbContext
 		where TEntity : class, IEntity<TPrimaryKey>
 		where TDbContext : DbContext
@@ -160,15 +162,21 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 		/// <inheritdoc/>
 		public virtual TEntity Insert(TEntity entity)
 		{
+			if (entity is ICreationAudited createAudited)
+			{
+				createAudited.CreationTime = Clock.Now;
+			}
+
 			DbQueryTable.Add(entity);
 
 			return entity;
 		}
 
 		/// <inheritdoc/>
-		public virtual Task<TEntity> InsertAsync(TEntity entity)
+		public virtual async Task<TEntity> InsertAsync(TEntity entity)
 		{
-			return Task.FromResult(Insert(entity));
+			await DbQueryTable.AddAsync(entity);
+			return entity;
 		}
 
 		/// <inheritdoc/>
