@@ -20,4 +20,8 @@
     <ProjectReference Include="..\EasyNet.CommonTests\EasyNet.CommonTests.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Fixture\" />
+  </ItemGroup>
+
 </Project>

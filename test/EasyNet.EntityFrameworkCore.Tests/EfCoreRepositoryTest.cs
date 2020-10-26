@@ -6,6 +6,8 @@ using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 using EasyNet.Domain.Uow;
 using EasyNet.EntityFrameworkCore.DependencyInjection;
+using EasyNet.EntityFrameworkCore.Extensions;
+using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Tests.DbContext;
 using EasyNet.EntityFrameworkCore.Tests.Entities;
 using Microsoft.Data.Sqlite;
@@ -474,6 +476,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
+			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			#region Insert but not SaveChanges
 
@@ -512,6 +515,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
+			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			#region Insert but not SaveChanges
 
@@ -550,6 +554,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
+			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			// Act
 			var user5 = new User
@@ -573,6 +578,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 			// Arrange
 			using var uow = BeginUow();
 			var userRepo = GetRepository<User, long>();
+			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
 			// Act
 			var user5 = new User
@@ -592,8 +598,56 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
 		#endregion
 
+		#region Update
 
-	
+		[Fact]
+		public void TestUpdate()
+		{
+			// Arrange
+			using var uow = BeginUow();
+			var userRepo = GetRepository<User, long>();
+			userRepo.GetDbContext().ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+			#region Get then update
+
+			// Act
+			var user1 = userRepo.Get(1);
+			user1.Name = "TestUser1";
+			userRepo.Update(user1);
+			((IUnitOfWork)uow).SaveChanges();
+
+			user1 = userRepo.Get(1);
+
+			// Assert
+			Assert.Equal("TestUser1", user1.Name);
+
+			#endregion
+
+			//#region Attch
+
+			//// Act
+			//var user2 = new User
+			//{
+			//	Id = 2,
+			//	Name = "TestUser2",
+			//	RoleId = 1
+			//};
+			//userRepo.Update(user2);
+			//((IUnitOfWork)uow).SaveChanges();
+
+			//user2 = userRepo.Get(2);
+
+			//// Assert
+			//Assert.Equal("TestUser2", user2.Name);
+
+			//#endregion
+
+			// Complete uow
+			uow.Complete();
+		}
+
+		#endregion
+
 		//[Fact]
 		//public async Task TestUpdate()
 		//{

@@ -18,24 +18,37 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 	/// <typeparam name="TDbContext">DbContext which contains <typeparamref name="TEntity"/>.</typeparam>
 	/// <typeparam name="TEntity">Type of the Entity for this repository</typeparam>
 	/// <typeparam name="TPrimaryKey">Primary key of the entity</typeparam>
-	public class EfCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey>, IRepositoryWithDbContext
+	public class EfCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey>, IRepositoryWithDbContext, IRepositoryWithQueryable<TEntity, TPrimaryKey>
 		where TEntity : class, IEntity<TPrimaryKey>
-		where TDbContext : DbContext
+		where TDbContext : EasyNetDbContext
 	{
 		public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
 		{
 			DbContext = dbContextProvider.GetDbContext();
 		}
 
-		public TDbContext DbContext { get; }
+		protected TDbContext DbContext { get; }
 
-		public virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
+		protected virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
+
+		#region IRepositoryWithDbContext
 
 		/// <inheritdoc/>
 		public DbContext GetDbContext()
 		{
 			return DbContext;
 		}
+
+		#endregion
+
+		#region IRepositoryWithQueryable
+
+		public IQueryable<TEntity> GetQueryable()
+		{
+			return DbQueryTable.AsQueryable();
+		}
+
+		#endregion
 
 		#region Select/Get/Query
 
@@ -162,11 +175,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 		/// <inheritdoc/>
 		public virtual TEntity Insert(TEntity entity)
 		{
-			if (entity is ICreationAudited createAudited)
-			{
-				createAudited.CreationTime = Clock.Now;
-			}
-
 			DbQueryTable.Add(entity);
 
 			return entity;
@@ -268,11 +276,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 		/// <inheritdoc/>
 		public virtual TEntity Update(TEntity entity)
 		{
-			if (entity is AuditedEntity<TPrimaryKey> auditedEntity)
-			{
-				auditedEntity.LastModificationTime = Clock.Now;
-			}
-
 			AttachIfNot(entity);
 			DbContext.Entry(entity).State = EntityState.Modified;
 			return entity;
