@@ -43,9 +43,9 @@ namespace EasyNet.EntityFrameworkCore.Tests
             AssertSpecifiedServiceTypeAndImplementationType<IDbContextProvider<EfCoreContext>, UnitOfWorkDbContextProvider<EfCoreContext>>(services, ServiceLifetime.Scoped);
             Assert.NotNull(sqlServerOptions);
             Assert.Equal("TestConnectionString", ((RelationalOptionsExtension)sqlServerOptions).ConnectionString);
-            AssertSpecifiedServiceTypeAndImplementationType<IRepository<User, long>, EfCoreRepositoryBase<EfCoreContext, User, long>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IRepository<Role, int>, EfCoreRepositoryBase<EfCoreContext, Role, int>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IRepository<Role>, EfCoreRepositoryBase<EfCoreContext, Role>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<User, long>, EfCoreRepositoryBase<EfCoreContext, User, long>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<Role, int>, EfCoreRepositoryBase<EfCoreContext, Role, int>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<Role>, EfCoreRepositoryBase<EfCoreContext, Role>>(services, ServiceLifetime.Transient);
         }
     }
 }

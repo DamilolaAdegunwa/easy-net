@@ -68,17 +68,17 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                         var idProperty = entityType.GetProperty("Id");
                         if (idProperty != null)
                         {
-                            // Add short service IRepository<TEntity> if the id property type is int.
+                            // Add short service IEfCoreRepository<TEntity> if the id property type is int.
                             if (idProperty.PropertyType == typeof(int))
                             {
                                 services.AddTransient(
-                                    typeof(IRepository<>).MakeGenericType(entityType),
+                                    typeof(IEfCoreRepository<>).MakeGenericType(entityType),
                                     typeof(EfCoreRepositoryBase<,>).MakeGenericType(dbContextType, entityType));
                             }
 
-                            // Add service IRepository<TEntity,TPrimaryKey>
+                            // Add service IEfCoreRepository<TEntity,TPrimaryKey>
                             services.AddTransient(
-                                typeof(IRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
+                                typeof(IEfCoreRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
                                 typeof(EfCoreRepositoryBase<,,>).MakeGenericType(dbContextType, entityType, idProperty.PropertyType));
                         }
                     }

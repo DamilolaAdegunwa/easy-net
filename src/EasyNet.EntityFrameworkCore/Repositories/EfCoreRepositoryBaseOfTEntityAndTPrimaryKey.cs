@@ -4,10 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
-using EasyNet.Domain.Entities.Auditing;
-using EasyNet.Domain.Repositories;
 using EasyNet.EntityFrameworkCore.Uow;
-using EasyNet.Timing;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
@@ -18,7 +15,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 	/// <typeparam name="TDbContext">DbContext which contains <typeparamref name="TEntity"/>.</typeparam>
 	/// <typeparam name="TEntity">Type of the Entity for this repository</typeparam>
 	/// <typeparam name="TPrimaryKey">Primary key of the entity</typeparam>
-	public class EfCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey>, IRepositoryWithDbContext, IRepositoryWithQueryable<TEntity, TPrimaryKey>
+	public class EfCoreRepositoryBase<TDbContext, TEntity, TPrimaryKey> : IEfCoreRepository<TEntity, TPrimaryKey>
 		where TEntity : class, IEntity<TPrimaryKey>
 		where TDbContext : EasyNetDbContext
 	{
@@ -31,24 +28,17 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
 		protected virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
 
-		#region IRepositoryWithDbContext
+        /// <inheritdoc/>
+        public DbContext GetDbContext()
+        {
+            return DbContext;
+        }
 
-		/// <inheritdoc/>
-		public DbContext GetDbContext()
-		{
-			return DbContext;
-		}
-
-		#endregion
-
-		#region IRepositoryWithQueryable
-
+        /// <inheritdoc/>
 		public IQueryable<TEntity> GetQueryable()
-		{
-			return DbQueryTable.AsQueryable();
-		}
-
-		#endregion
+        {
+            return DbQueryTable.AsQueryable();
+        }
 
 		#region Select/Get/Query
 
