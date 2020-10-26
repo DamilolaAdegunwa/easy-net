@@ -1,6 +1,7 @@
 ﻿using System;
 using EasyNet.Domain.Uow;
 using EasyNet.Mvc;
+using EasyNet.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,8 @@ namespace EasyNet.DependencyInjection
                 .AddScoped<ICurrentUnitOfWorkProvider, AsyncLocalCurrentUnitOfWorkProvider>()
                 .AddScoped<IUnitOfWorkManager, UnitOfWorkManager>()
                 .AddTransient<IUnitOfWork, NullUnitOfWork>()
+                .AddSingleton<IPrincipalAccessor, DefaultPrincipalAccessor>()
+                .AddScoped<IEasyNetSession, ClaimsEasyNetSession>()
                 .AddTransient<EasyNetUowActionFilter>()
                 .Configure<MvcOptions>(mvcOptions =>
                 {
