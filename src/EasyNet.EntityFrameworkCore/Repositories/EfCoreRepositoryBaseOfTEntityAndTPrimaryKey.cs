@@ -268,6 +268,11 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 		/// <inheritdoc/>
 		public virtual TEntity Update(TEntity entity)
 		{
+			if (entity is AuditedEntity<TPrimaryKey> auditedEntity)
+			{
+				auditedEntity.LastModificationTime = Clock.Now;
+			}
+
 			AttachIfNot(entity);
 			DbContext.Entry(entity).State = EntityState.Modified;
 			return entity;
@@ -456,8 +461,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
 		#endregion
 
-		#region Helper
-
 		protected virtual void AttachIfNot(TEntity entity)
 		{
 			var entry = DbContext.ChangeTracker.Entries().FirstOrDefault(ent => ent.Entity == entity);
@@ -516,7 +519,5 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
 			return false;
 		}
-
-		#endregion
 	}
 }
