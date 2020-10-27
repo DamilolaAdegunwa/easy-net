@@ -48,6 +48,30 @@ namespace EasyNet.Domain.Entities.Auditing
             }
         }
 
+        public static void SetDeletionAuditProperties(object entity, object userId)
+        {
+            if (entity == null)
+            {
+                // Return if the entity is null.
+                return;
+            }
+
+            if (entity is ISoftDelete softDeleteEntity)
+            {
+                softDeleteEntity.IsDeleted = true;
+            }
+
+            if (entity is IHasDeletionTime hasCreationTimeEntity)
+            {
+                hasCreationTimeEntity.DeletionTime = Clock.Now;
+            }
+
+            if (entity is IDeletionAudited)
+            {
+                SetUserIdType(entity, userId, typeof(IDeletionAudited<>), "DeleterUserId");
+            }
+        }
+
         private static void SetUserIdType(object entity, object userId, Type auditedGenericType, string userIdPropertyName)
         {
             var entityType = entity.GetType();

@@ -31,7 +31,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
                 .AddEfCore<EfCoreContext>(options =>
                 {
                     options.UseSqlite(CreateInMemoryDatabase());
-                });
+                }, true);
 
             _serviceProvider = services.BuildServiceProvider();
 
@@ -966,6 +966,59 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
         #endregion
 
+        #region SoftDelet
+
+        [Fact]
+        public void TestSoftDelete()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
+
+            //#region Delete by id
+
+            //// Act
+            //userRepo.Delete(1);
+
+            //((IUnitOfWork)uow).SaveChanges();
+
+            //// Assert
+            //Assert.Null(userRepo.GetQueryable().AsNoTracking().SingleOrDefault(p => p.Id == 1));
+            //Assert.Equal(3, userRepo.GetQueryable().AsNoTracking().Count());
+
+            //#endregion
+
+            #region Delete by entity
+
+            // Act
+            deletionAuditedRepo.Delete(deletionAuditedRepo.Get(2));
+
+            ((IUnitOfWork)uow).SaveChanges();
+
+            // Assert
+            Assert.Equal(1, deletionAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 2).DeleterUserId);
+            Assert.Equal(5, deletionAuditedRepo.GetQueryable().AsNoTracking().Count());
+
+            #endregion
+
+            //#region Delete by predicate
+
+            //// Act
+            //userRepo.Delete(p => p.RoleId == 2);
+
+            //((IUnitOfWork)uow).SaveChanges();
+
+            //// Assert
+            //Assert.Equal(0, userRepo.GetQueryable().AsNoTracking().Count());
+
+            //#endregion
+
+            // Complete uow
+            uow.Complete();
+        }
+
+        #endregion
+
         //[Fact]
         //public async Task TestInsertOrUpdate()
         //{
@@ -1128,6 +1181,18 @@ namespace EasyNet.EntityFrameworkCore.Tests
             context.TestModificationAudited.Add(new TestModificationAudited { Name = "Update2" });
             context.SaveChanges();
             context.TestModificationAudited.Add(new TestModificationAudited { Name = "Update3" });
+            context.SaveChanges();
+
+            // Insert default test deletion audited records.
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = true });
+            context.SaveChanges();
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = false });
+            context.SaveChanges();
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = true });
+            context.SaveChanges();
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = true });
+            context.SaveChanges();
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = false });
             context.SaveChanges();
 
             // Clear all change trackers

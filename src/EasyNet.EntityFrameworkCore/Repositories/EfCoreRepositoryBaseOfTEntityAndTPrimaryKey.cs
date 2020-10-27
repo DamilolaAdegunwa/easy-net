@@ -345,9 +345,17 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual void Delete(TEntity entity)
         {
-            AttachIfNot(entity);
-
-            DbQueryTable.Remove(entity);
+            if (entity is IDeletionAudited)
+            {
+                EntityAuditingHelper.SetDeletionAuditProperties(entity, Session.UserId);
+                AttachIfNot(entity);
+                DbContext.Entry(entity).State = EntityState.Modified;
+            }
+            else
+            {
+                AttachIfNot(entity);
+                DbQueryTable.Remove(entity);
+            }
         }
 
         /// <inheritdoc/>
