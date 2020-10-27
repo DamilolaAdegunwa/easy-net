@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EasyNet.Timing;
+using EasyNet.Extensions;
 
 namespace EasyNet.Domain.Entities.Auditing
 {
@@ -25,7 +26,7 @@ namespace EasyNet.Domain.Entities.Auditing
             {
                 var entityType = entity.GetType();
                 var interfaces = entityType.GetInterfaces();
-                
+
                 var creationAuditedGenericInterface = interfaces.SingleOrDefault(p => p.Name == typeof(ICreationAudited<>).Name);
                 if (creationAuditedGenericInterface != null)
                 {
@@ -35,7 +36,12 @@ namespace EasyNet.Domain.Entities.Auditing
                         throw new EasyNetException($"Cannot found property CreatorUserId in the entity {entityType.AssemblyQualifiedName}.");
                     }
 
-                    creatorUserIdProperty.SetValue(entity, userId);
+                    var userIdType = creationAuditedGenericInterface.GetGenericArguments().FirstOrDefault();
+                    if (userIdType != null)
+                    {
+                        creatorUserIdProperty.SetValue(entity, userId, userIdType);
+                    }
+
                 }
             }
         }
