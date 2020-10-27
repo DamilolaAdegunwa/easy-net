@@ -10,6 +10,7 @@ using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Tests.DbContext;
 using EasyNet.EntityFrameworkCore.Tests.Entities;
+using EasyNet.Runtime.Session;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -28,6 +29,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             services
                 .AddEasyNet()
+                .AddSession<TestSession>()
                 .AddEfCore<EfCoreContext>(options =>
                 {
                     options.UseSqlite(CreateInMemoryDatabase());
@@ -478,6 +480,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
             using var uow = BeginUow();
             var userRepo = GetRepository<User, long>();
             var roleRepo = GetRepository<Role>();
+            var creationAuditedRepo = GetRepository<TestCreationAudited>();
 
             #region Insert but not SaveChanges
 
@@ -495,11 +498,18 @@ namespace EasyNet.EntityFrameworkCore.Tests
             };
             roleRepo.Insert(role3);
 
+            var creationAudited1 = new TestCreationAudited();
+            creationAuditedRepo.Insert(creationAudited1);
+
             // Assert
             Assert.Equal(0, user5.Id);
             Assert.Equal(4, userRepo.GetQueryable().AsNoTracking().Count());
+
             Assert.Equal(0, role3.Id);
             Assert.Equal(2, roleRepo.GetQueryable().AsNoTracking().Count());
+
+            Assert.Equal(0, creationAudited1.Id);
+            Assert.Equal(0, creationAuditedRepo.GetQueryable().AsNoTracking().Count());
 
             #endregion
 
@@ -951,5 +961,12 @@ namespace EasyNet.EntityFrameworkCore.Tests
         {
             return _serviceProvider.GetService<IEfCoreRepository<TEntity, TPrimaryKey>>();
         }
+    }
+
+    public class TestSession : EasyNetSessionBase
+    {
+        public override string UserId => "1";
+        public override string UserName => "Test";
+        public override string Role => "Admin";
     }
 }
