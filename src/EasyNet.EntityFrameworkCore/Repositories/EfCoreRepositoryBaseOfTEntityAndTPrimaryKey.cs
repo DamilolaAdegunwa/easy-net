@@ -4,7 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
+using EasyNet.Domain.Entities.Auditing;
 using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.Timing;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
@@ -28,17 +30,17 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
 		protected virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
 
-        /// <inheritdoc/>
-        public DbContext GetDbContext()
-        {
-            return DbContext;
-        }
+		/// <inheritdoc/>
+		public DbContext GetDbContext()
+		{
+			return DbContext;
+		}
 
-        /// <inheritdoc/>
+		/// <inheritdoc/>
 		public IQueryable<TEntity> GetQueryable()
-        {
-            return DbQueryTable.AsQueryable();
-        }
+		{
+			return DbQueryTable.AsQueryable();
+		}
 
 		#region Select/Get/Query
 
@@ -344,7 +346,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 				Delete(entity);
 			}
 
-			// 如果没有找到对象则不做任何操作
+			// Don't do anything if no entity can be found.
 		}
 
 		/// <inheritdoc/>
@@ -363,7 +365,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 				Delete(entity);
 			}
 
-			// 如果没有找到对象则不做任何操作
+			// Don't do anything if no entity can be found.
 		}
 
 		/// <inheritdoc/>

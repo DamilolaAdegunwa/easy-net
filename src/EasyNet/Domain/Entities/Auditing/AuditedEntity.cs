@@ -1,51 +1,37 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EasyNet.Domain.Entities.Auditing
 {
     /// <summary>
-    /// A shortcut of <see cref="AuditedEntity{TPrimaryKey}"/> for most used primary key type (<see cref="int"/>).
+    /// This class can be used to simplify implementing <see cref="IAudited{TUserPrimaryKey}"/>.
     /// </summary>
-    public abstract class AuditedEntity : AuditedEntity<int>, IEntity
+    public abstract class AuditedEntity : AuditedEntity<int, int>
     {
 
     }
 
     /// <summary>
-    /// This class can be used to simplify implementing <see cref="IAudited"/>.
+    /// This class can be used to simplify implementing <see cref="IAudited{TUserPrimaryKey}"/>.
     /// </summary>
     /// <typeparam name="TPrimaryKey">Type of the primary key of the entity</typeparam>
-    public abstract class AuditedEntity<TPrimaryKey> : CreationAuditedEntity<TPrimaryKey>, IAudited
+    public abstract class AuditedEntity<TPrimaryKey> : AuditedEntity<TPrimaryKey, int>
     {
-        /// <summary>
-        /// Last modification date of this entity.
-        /// </summary>
+    }
+
+    /// <summary>
+    /// This class can be used to simplify implementing <see cref="IAudited{TUserPrimaryKey}"/>.
+    /// </summary>
+    /// <typeparam name="TPrimaryKey">Type of the primary key of the entity</typeparam>
+    /// <typeparam name="TUserPrimaryKey">Type of the user</typeparam>
+    public abstract class AuditedEntity<TPrimaryKey, TUserPrimaryKey> : CreationAuditedEntity<TPrimaryKey, TUserPrimaryKey>, IAudited<TUserPrimaryKey>
+        where TUserPrimaryKey : struct
+    {
+	    /// <inheritdoc/>
+
         public virtual DateTime? LastModificationTime { get; set; }
 
-        /// <summary>
-        /// Last modifier user of this entity.
-        /// </summary>
-        public virtual long? LastModifierUserId { get; set; }
-    }
+	    /// <inheritdoc/>
 
-    /// <summary>
-    /// This class can be used to simplify implementing <see cref="IAudited{TUser}"/>.
-    /// </summary>
-    /// <typeparam name="TPrimaryKey">Type of the primary key of the entity</typeparam>
-    /// <typeparam name="TUser">Type of the user</typeparam>
-    public abstract class AuditedEntity<TPrimaryKey, TUser> : AuditedEntity<TPrimaryKey>, IAudited<TUser>
-        where TUser : IEntity<long>
-    {
-        /// <summary>
-        /// Reference to the creator user of this entity.
-        /// </summary>
-        [ForeignKey("CreatorUserId")]
-        public virtual TUser CreatorUser { get; set; }
-
-        /// <summary>
-        /// Reference to the last modifier user of this entity.
-        /// </summary>
-        [ForeignKey("LastModifierUserId")]
-        public virtual TUser LastModifierUser { get; set; }
+        public virtual TUserPrimaryKey? LastModifierUserId { get; set; }
     }
 }

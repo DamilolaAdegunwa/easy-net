@@ -89,9 +89,7 @@ namespace EasyNet.EntityFrameworkCore.Uow
 
         protected override void DisposeUow()
         {
-            // 事务被释放前如果没执行Commit，会自动回滚数据
             ActiveTransaction?.Dispose();
-
             ActiveDbContext?.Dispose();
         }
     }

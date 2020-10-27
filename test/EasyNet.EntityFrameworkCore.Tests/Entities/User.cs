@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using EasyNet.Domain.Entities;
 using EasyNet.Domain.Entities.Auditing;
 
 namespace EasyNet.EntityFrameworkCore.Tests.Entities
 {
     [Table("Users")]
-    public class User : FullAuditedEntity<long>
+    public class User : Entity<long>
     {
         public string Name { get; set; }
 

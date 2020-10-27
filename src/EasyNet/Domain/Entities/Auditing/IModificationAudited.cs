@@ -4,24 +4,21 @@
     /// This interface is implemented by entities that is wanted to store modification information (who and when modified lastly).
     /// Properties are automatically set when updating the <see cref="IEntity"/>.
     /// </summary>
-    public interface IModificationAudited : IHasModificationTime
+    public interface IModificationAudited : IModificationAudited<int>
     {
-        /// <summary>
-        /// Last modifier user for this entity.
-        /// </summary>
-        long? LastModifierUserId { get; set; }
     }
 
     /// <summary>
-    /// Adds navigation properties to <see cref="IModificationAudited"/> interface for user.
+    /// This interface is implemented by entities that is wanted to store modification information (who and when modified lastly).
+    /// Properties are automatically set when updating the <see cref="IEntity"/>.
     /// </summary>
-    /// <typeparam name="TUser">Type of the user</typeparam>
-    public interface IModificationAudited<TUser> : IModificationAudited
-        where TUser : IEntity<long>
+    /// <typeparam name="TUserPrimaryKey">Type of the primary key of the user</typeparam>
+    public interface IModificationAudited<TUserPrimaryKey> : IHasModificationTime
+        where TUserPrimaryKey : struct
     {
-        /// <summary>
-        /// Reference to the last modifier user of this entity.
-        /// </summary>
-        TUser LastModifierUser { get; set; }
+	    /// <summary>
+	    /// Id of the creator user of this entity.
+	    /// </summary>
+	    TUserPrimaryKey? LastModifierUserId { get; set; }
     }
 }

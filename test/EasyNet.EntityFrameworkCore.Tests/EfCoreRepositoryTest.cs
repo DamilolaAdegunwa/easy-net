@@ -758,6 +758,22 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
         #endregion
 
+        #region InsertOrUpdate
+
+
+
+        #endregion
+
+        #region Hard Delete
+
+        [Fact]
+        public void Delete()
+        {
+
+        }
+
+        #endregion
+
         //[Fact]
         //public async Task TestInsertOrUpdate()
         //{
@@ -883,31 +899,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
         //    await dbContext.SaveChangesAsync();
         //    Assert.False(bookRepo.Any(p => p.Name.Contains("Book2")));
         //}
-
-        //#region Helper
-
-        //private IDbContextProvider<EfCoreContext> GetDbContextProvider()
-        //{
-        //    var dbContextProviderMock = new Moq.Mock<IDbContextProvider<EfCoreContext>>();
-        //    dbContextProviderMock.Setup(p => p.GetDbContext()).Returns(_msFixture.GetDbContext());
-
-        //    return dbContextProviderMock.Object;
-        //}
-
-        //private IRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity<int>
-        //{
-        //    return new EfCoreRepositoryBase<EfCoreContext, TEntity>(GetDbContextProvider());
-        //}
-
-        //private IRepository<TEntity, TPrimaryKey> GetRepository<TEntity, TPrimaryKey>() where TEntity : class, IEntity<TPrimaryKey>
-        //{
-        //    var dbContextProviderMock = new Moq.Mock<IDbContextProvider<EfCoreContext>>();
-        //    dbContextProviderMock.Setup(p => p.GetDbContext()).Returns(_msFixture.GetDbContext());
-
-        //    return new EfCoreRepositoryBase<EfCoreContext, TEntity, TPrimaryKey>(GetDbContextProvider());
-        //}
-
-        //#endregion
 
         private DbConnection CreateInMemoryDatabase()
         {
