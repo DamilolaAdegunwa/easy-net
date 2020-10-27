@@ -12,8 +12,11 @@ namespace EasyNet.Tests.Extensions
         {
             // Arrange
             var test = new TestClass();
+            var type = test.GetType();
 
             // Act && Assert
+            type.GetProperty("Short")?.SetValue(test, 1);
+            Assert.Equal(1, test.Short);
         }
     }
 
