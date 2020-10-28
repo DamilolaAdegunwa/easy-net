@@ -1,6 +1,5 @@
 ﻿using EasyNet.Domain.Entities;
 using EasyNet.EntityFrameworkCore.Uow;
-using EasyNet.Runtime.Session;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
 {
@@ -8,8 +7,8 @@ namespace EasyNet.EntityFrameworkCore.Repositories
          where TEntity : class, IEntity<int>
          where TDbContext : EasyNetDbContext
     {
-        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider, IEasyNetSession session)
-            : base(dbContextProvider, session)
+        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
+            : base(dbContextProvider)
         {
         }
     }

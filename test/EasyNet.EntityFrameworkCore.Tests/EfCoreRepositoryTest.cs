@@ -9,6 +9,7 @@ using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Tests.DbContext;
 using EasyNet.EntityFrameworkCore.Tests.Entities;
+using EasyNet.Extensions;
 using EasyNet.Runtime.Session;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -860,7 +861,73 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
         #region InsertOrUpdate
 
+        [Fact]
+        public void TestInsertOrUpdate()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var modificationAuditedRepo = GetRepository<TestModificationAudited, long>();
 
+            // Act
+            var modificationAudited1 = new TestModificationAudited
+            {
+                Id = 1,
+                Name = "TestUpdate1"
+            };
+            modificationAuditedRepo.InsertOrUpdate(modificationAudited1);
+
+            var modificationAudited4 = new TestModificationAudited
+            {
+                Name = "TestUpdate4"
+            };
+            modificationAuditedRepo.InsertOrUpdate(modificationAudited4);
+
+            ((IUnitOfWork)uow).SaveChanges();
+
+            // Assert
+            Assert.Equal(4, modificationAuditedRepo.Count());
+            Assert.Equal("TestUpdate1", modificationAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 1).Name);
+            Assert.Equal(1, modificationAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 1).LastModifierUserId);
+            Assert.Equal("TestUpdate4", modificationAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 4).Name);
+            Assert.Equal(1, modificationAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 4).CreatorUserId);
+
+            // Complete uow
+            uow.Complete();
+        }
+
+        [Fact]
+        public async Task TestInsertOrUpdateAsync()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var modificationAuditedRepo = GetRepository<TestModificationAudited, long>();
+
+            // Act
+            var modificationAudited1 = new TestModificationAudited
+            {
+                Id = 1,
+                Name = "TestUpdate1"
+            };
+            await modificationAuditedRepo.InsertOrUpdateAsync(modificationAudited1);
+
+            var modificationAudited4 = new TestModificationAudited
+            {
+                Name = "TestUpdate4"
+            };
+            await modificationAuditedRepo.InsertOrUpdateAsync(modificationAudited4);
+
+            await ((IUnitOfWork)uow).SaveChangesAsync();
+
+            // Assert
+            Assert.Equal(4, await modificationAuditedRepo.CountAsync());
+            Assert.Equal("TestUpdate1", (await modificationAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 1)).Name);
+            Assert.Equal(1, (await modificationAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 1)).LastModifierUserId);
+            Assert.Equal("TestUpdate4", (await modificationAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 4)).Name);
+            Assert.Equal(1, (await modificationAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 4)).CreatorUserId);
+
+            // Complete uow
+            await uow.CompleteAsync();
+        }
 
         #endregion
 
@@ -975,18 +1042,19 @@ namespace EasyNet.EntityFrameworkCore.Tests
             using var uow = BeginUow();
             var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
 
-            //#region Delete by id
+            #region Delete by id
 
-            //// Act
-            //userRepo.Delete(1);
+            // Act
+            deletionAuditedRepo.Delete(1);
 
-            //((IUnitOfWork)uow).SaveChanges();
+            ((IUnitOfWork)uow).SaveChanges();
 
-            //// Assert
-            //Assert.Null(userRepo.GetQueryable().AsNoTracking().SingleOrDefault(p => p.Id == 1));
-            //Assert.Equal(3, userRepo.GetQueryable().AsNoTracking().Count());
+            // Assert
+            Assert.Equal(1, deletionAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 1).DeleterUserId);
+            Assert.Equal(1, deletionAuditedRepo.GetQueryable().AsNoTracking().Count(p => p.IsDeleted));
+            Assert.Equal(5, deletionAuditedRepo.GetQueryable().AsNoTracking().Count());
 
-            //#endregion
+            #endregion
 
             #region Delete by entity
 
@@ -997,153 +1065,81 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             // Assert
             Assert.Equal(1, deletionAuditedRepo.GetQueryable().AsNoTracking().Single(p => p.Id == 2).DeleterUserId);
+            Assert.Equal(2, deletionAuditedRepo.GetQueryable().AsNoTracking().Count(p => p.IsDeleted));
             Assert.Equal(5, deletionAuditedRepo.GetQueryable().AsNoTracking().Count());
 
             #endregion
 
-            //#region Delete by predicate
+            #region Delete by predicate
 
-            //// Act
-            //userRepo.Delete(p => p.RoleId == 2);
+            // Act
+            deletionAuditedRepo.Delete(p => p.IsActive == false);
 
-            //((IUnitOfWork)uow).SaveChanges();
+            ((IUnitOfWork)uow).SaveChanges();
 
-            //// Assert
-            //Assert.Equal(0, userRepo.GetQueryable().AsNoTracking().Count());
+            // Assert
+            Assert.Equal(2, deletionAuditedRepo.GetQueryable().AsNoTracking().Count(p => p.IsActive == false && p.IsDeleted));
+            Assert.Equal(5, deletionAuditedRepo.GetQueryable().AsNoTracking().Count());
 
-            //#endregion
+            #endregion
 
             // Complete uow
             uow.Complete();
         }
 
+        [Fact]
+        public async Task TestSoftDeleteAsync()
+        {
+            // Arrange
+            using var uow = BeginUow();
+            var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
+
+            #region Delete by id
+
+            // Act
+            await deletionAuditedRepo.DeleteAsync(1);
+
+            await ((IUnitOfWork)uow).SaveChangesAsync();
+
+            // Assert
+            Assert.Equal(1, (await deletionAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 1)).DeleterUserId);
+            Assert.Equal(1, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync(p => p.IsDeleted));
+            Assert.Equal(5, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync());
+
+            #endregion
+
+            #region Delete by entity
+
+            // Act
+            await deletionAuditedRepo.DeleteAsync(deletionAuditedRepo.Get(2));
+
+            await ((IUnitOfWork)uow).SaveChangesAsync();
+
+            // Assert
+            Assert.Equal(1, (await deletionAuditedRepo.GetQueryable().AsNoTracking().SingleAsync(p => p.Id == 2)).DeleterUserId);
+            Assert.Equal(2, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync(p => p.IsDeleted));
+            Assert.Equal(5, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync());
+
+            #endregion
+
+            #region Delete by predicate
+
+            // Act
+            await deletionAuditedRepo.DeleteAsync(p => p.IsActive == false);
+
+            await ((IUnitOfWork)uow).SaveChangesAsync();
+
+            // Assert
+            Assert.Equal(2, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync(p => p.IsActive == false && p.IsDeleted));
+            Assert.Equal(5, await deletionAuditedRepo.GetQueryable().AsNoTracking().CountAsync());
+
+            #endregion
+
+            // Complete uow
+            await uow.CompleteAsync();
+        }
+
         #endregion
-
-        //[Fact]
-        //public async Task TestInsertOrUpdate()
-        //{
-        //    var authorRepo = GetRepository<Author, long>();
-        //    var dbContext = authorRepo.GetDbContext();
-        //    dbContext.ChangeTracker.QueryTrackingBehavior = Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
-
-        //    var author11 = new Author
-        //    {
-        //        Name = "Author11"
-        //    };
-        //    authorRepo.InsertOrUpdate(author11);
-        //    dbContext.SaveChanges();
-        //    Assert.Equal(11, author11.Id);
-
-        //    var author12 = new Author
-        //    {
-        //        Name = "Author12"
-        //    };
-        //    await authorRepo.InsertOrUpdateAsync(author12);
-        //    dbContext.SaveChanges();
-        //    Assert.Equal(12, author12.Id);
-
-        //    var author13 = new Author
-        //    {
-        //        Name = "Author13"
-        //    };
-        //    authorRepo.InsertOrUpdateAndGetId(author13);
-        //    Assert.Equal(13, author13.Id);
-
-        //    var author14 = new Author
-        //    {
-        //        Name = "Author14"
-        //    };
-        //    await authorRepo.InsertOrUpdateAndGetIdAsync(author14);
-        //    Assert.Equal(14, author14.Id);
-
-        //    Assert.NotNull(authorRepo.Get(11));
-        //    Assert.NotNull(authorRepo.Get(12));
-        //    Assert.NotNull(authorRepo.Get(13));
-        //    Assert.NotNull(authorRepo.Get(14));
-
-        //    var author1 = new Author
-        //    {
-        //        Id = 1,
-        //        Name = "NewAuthor1"
-        //    };
-        //    authorRepo.InsertOrUpdate(author1);
-        //    dbContext.SaveChanges();
-        //    author1 = authorRepo.Get(1);
-        //    Assert.Equal("NewAuthor1", author1.Name);
-
-        //    var author2 = new Author
-        //    {
-        //        Id = 2,
-        //        Name = "NewAuthor2"
-        //    };
-        //    authorRepo.InsertOrUpdate(author2);
-        //    dbContext.SaveChanges();
-        //    author2 = authorRepo.Get(2);
-        //    Assert.Equal("NewAuthor2", author2.Name);
-
-        //    var author3 = new Author
-        //    {
-        //        Id = 3,
-        //        Name = "NewAuthor3"
-        //    };
-        //    authorRepo.InsertOrUpdateAndGetId(author3);
-        //    dbContext.SaveChanges();
-        //    author3 = authorRepo.Get(3);
-        //    Assert.Equal("NewAuthor3", author3.Name);
-
-        //    var author4 = new Author
-        //    {
-        //        Id = 4,
-        //        Name = "NewAuthor4"
-        //    };
-        //    authorRepo.InsertOrUpdateAndGetId(author4);
-        //    dbContext.SaveChanges();
-        //    author4 = authorRepo.Get(4);
-        //    Assert.Equal("NewAuthor4", author4.Name);
-        //}
-
-        //[Fact]
-        //public async Task TestDelete()
-        //{
-        //    var bookRepo = GetRepository<Book, long>();
-        //    var dbContext = bookRepo.GetDbContext();
-
-        //    var book1 = new Book
-        //    {
-        //        Id = 1,
-        //        Name = "Book1"
-        //    };
-        //    bookRepo.Delete(book1);
-        //    dbContext.SaveChanges();
-        //    Assert.Null(bookRepo.SingleOrDefault(p => p.Id == 1));
-        //    Assert.Equal(8, bookRepo.Count(p => p.Id < 10));
-
-        //    var book2 = new Book
-        //    {
-        //        Id = 2,
-        //        Name = "Book2"
-        //    };
-        //    await bookRepo.DeleteAsync(book2);
-        //    await dbContext.SaveChangesAsync();
-        //    Assert.Null(bookRepo.SingleOrDefault(p => p.Id == 2));
-        //    Assert.Equal(7, bookRepo.Count(p => p.Id < 10));
-
-        //    bookRepo.Delete(3);
-        //    dbContext.SaveChanges();
-        //    Assert.Equal(6, bookRepo.Count(p => p.Id < 10));
-
-        //    await bookRepo.DeleteAsync(4);
-        //    await dbContext.SaveChangesAsync();
-        //    Assert.Equal(5, bookRepo.Count(p => p.Id < 10));
-
-        //    bookRepo.Delete(p => p.Name.Contains("Book1"));
-        //    dbContext.SaveChanges();
-        //    Assert.False(bookRepo.Any(p => p.Name.Contains("Book1")));
-
-        //    await bookRepo.DeleteAsync(p => p.Name.Contains("Book2"));
-        //    await dbContext.SaveChangesAsync();
-        //    Assert.False(bookRepo.Any(p => p.Name.Contains("Book2")));
-        //}
 
         private DbConnection CreateInMemoryDatabase()
         {

@@ -21,17 +21,14 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         where TEntity : class, IEntity<TPrimaryKey>
         where TDbContext : EasyNetDbContext
     {
-        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider, IEasyNetSession session)
+        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
         {
             DbContext = dbContextProvider.GetDbContext();
-            Session = session ?? NullEasyNetSession.Instance;
         }
 
         protected TDbContext DbContext { get; }
 
         protected virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
-
-        protected IEasyNetSession Session { get; }
 
         /// <inheritdoc/>
         public DbContext GetDbContext()
@@ -170,24 +167,13 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual TEntity Insert(TEntity entity)
         {
-            if (entity is ICreationAudited)
-            {
-                EntityAuditingHelper.SetCreationAuditProperties(entity, Session.UserId);
-            }
-
             DbQueryTable.Add(entity);
-
             return entity;
         }
 
         /// <inheritdoc/>
         public virtual async Task<TEntity> InsertAsync(TEntity entity)
         {
-            if (entity is ICreationAudited)
-            {
-                EntityAuditingHelper.SetCreationAuditProperties(entity, Session.UserId);
-            }
-
             await DbQueryTable.AddAsync(entity);
             return entity;
         }
@@ -281,11 +267,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual TEntity Update(TEntity entity)
         {
-            if (entity is IModificationAudited)
-            {
-                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
-            }
-
             AttachIfNot(entity);
             DbContext.Entry(entity).State = EntityState.Modified;
             return entity;
@@ -304,11 +285,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
             var entity = Get(id);
             updateAction(entity);
 
-            if (entity is IModificationAudited)
-            {
-                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
-            }
-
             if (DbContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)
             {
                 AttachIfNot(entity);
@@ -323,11 +299,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         {
             var entity = await GetAsync(id);
             await updateAction(entity);
-
-            if (entity is IModificationAudited)
-            {
-                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
-            }
 
             if (DbContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)
             {
@@ -345,17 +316,8 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual void Delete(TEntity entity)
         {
-            if (entity is IDeletionAudited)
-            {
-                EntityAuditingHelper.SetDeletionAuditProperties(entity, Session.UserId);
-                AttachIfNot(entity);
-                DbContext.Entry(entity).State = EntityState.Modified;
-            }
-            else
-            {
-                AttachIfNot(entity);
-                DbQueryTable.Remove(entity);
-            }
+            AttachIfNot(entity);
+            DbQueryTable.Remove(entity);
         }
 
         /// <inheritdoc/>

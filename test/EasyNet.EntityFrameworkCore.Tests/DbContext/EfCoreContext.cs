@@ -1,11 +1,12 @@
 ﻿using EasyNet.EntityFrameworkCore.Tests.Entities;
+using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Tests.DbContext
 {
     public class EfCoreContext : EasyNetDbContext
     {
-        public EfCoreContext(DbContextOptions options) : base(options)
+        public EfCoreContext(DbContextOptions options, IEasyNetSession session = null) : base(options, session)
         {
         }
 
