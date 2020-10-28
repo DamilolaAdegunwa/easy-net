@@ -1,0 +1,41 @@
+﻿@page
+@model EasyNet.Identity.UI.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "登录";
+}
+<div class="auth-form-header">
+    帐号密码登录
+</div>
+@if (!Model.ModelState.IsValid)
+{
+    <div class="auth-form-error">
+        <div asp-validation-summary="All" class="alert alert-danger" role="alert">
+        </div>
+    </div>
+}
+<div class="auth-form-body">
+    <form id="account" method="post">
+        <div class="form-group">
+            <label asp-for="Input.LoginName"></label>
+            <input asp-for="Input.LoginName" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label>密码 <a class="label-link" asp-page="./ForgotPassword">忘记密码?</a></label>
+            <input asp-for="Input.Password" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <div class="checkbox">
+                <label asp-for="Input.RememberMe">
+                    <input asp-for="Input.RememberMe"/>
+                    @Html.DisplayNameFor(m => m.Input.RememberMe)
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <button id="login-submit" type="submit" class="btn btn-primary btn-block">登录</button>
+        </div>
+    </form>
+</div>
+
+
+

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.2;netcoreapp3.1</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0-dev.1</Version>
+    <Authors>Sid Zhao</Authors>
+    <Company>Sid Zhao</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>aspnetcore, entityframeworkcore, efcore, identity</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.9"></PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0"></PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EasyNet.EntityFrameworkCore\EasyNet.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <DefineConstants>$(DefineConstants);NetCore31</DefineConstants>
+  </PropertyGroup>
+
+</Project>
