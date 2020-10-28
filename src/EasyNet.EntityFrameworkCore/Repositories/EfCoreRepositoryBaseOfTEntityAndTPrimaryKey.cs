@@ -7,7 +7,6 @@ using EasyNet.Domain.Entities;
 using EasyNet.Domain.Entities.Auditing;
 using EasyNet.EntityFrameworkCore.Uow;
 using EasyNet.Runtime.Session;
-using EasyNet.Timing;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
@@ -184,6 +183,11 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual async Task<TEntity> InsertAsync(TEntity entity)
         {
+            if (entity is ICreationAudited)
+            {
+                EntityAuditingHelper.SetCreationAuditProperties(entity, Session.UserId);
+            }
+
             await DbQueryTable.AddAsync(entity);
             return entity;
         }
@@ -277,6 +281,11 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual TEntity Update(TEntity entity)
         {
+            if (entity is IModificationAudited)
+            {
+                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
+            }
+
             AttachIfNot(entity);
             DbContext.Entry(entity).State = EntityState.Modified;
             return entity;
@@ -295,6 +304,11 @@ namespace EasyNet.EntityFrameworkCore.Repositories
             var entity = Get(id);
             updateAction(entity);
 
+            if (entity is IModificationAudited)
+            {
+                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
+            }
+
             if (DbContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)
             {
                 AttachIfNot(entity);
@@ -309,6 +323,11 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         {
             var entity = await GetAsync(id);
             await updateAction(entity);
+
+            if (entity is IModificationAudited)
+            {
+                EntityAuditingHelper.SetModificationAuditProperties(entity, Session.UserId);
+            }
 
             if (DbContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)
             {
@@ -326,9 +345,17 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual void Delete(TEntity entity)
         {
-            AttachIfNot(entity);
-
-            DbQueryTable.Remove(entity);
+            if (entity is IDeletionAudited)
+            {
+                EntityAuditingHelper.SetDeletionAuditProperties(entity, Session.UserId);
+                AttachIfNot(entity);
+                DbContext.Entry(entity).State = EntityState.Modified;
+            }
+            else
+            {
+                AttachIfNot(entity);
+                DbQueryTable.Remove(entity);
+            }
         }
 
         /// <inheritdoc/>

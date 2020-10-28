@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using EasyNet.DependencyInjection;
-using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 using EasyNet.Domain.Uow;
 using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Uow;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -25,8 +22,13 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
         /// <typeparam name="TDbContext">The context associated with the application.</typeparam>
         /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
         /// <param name="setupAction">An <see cref="Action{DbContextOptionsBuilder}"/> to configure the provided <see cref="DbContextOptionsBuilder"/>.</param>
+        /// <param name="asMainOrmTechnology">
+        /// Sometimes use more than one orm technology in one system. We need to choice one of them as main technology.
+        /// Use this value to control which orm is main technology.
+        /// We can use <see cref="IRepository{TEntity,TPrimaryKey}"/> to get a repository service if this value is true. We also can use <see cref="IEfCoreRepository{TEntity,TPrimaryKey}"/> at the same time.
+        /// </param>
         /// <returns></returns>
-        public static IEasyNetBuilder AddEfCore<TDbContext>(this IEasyNetBuilder builder, Action<DbContextOptionsBuilder> setupAction)
+        public static IEasyNetBuilder AddEfCore<TDbContext>(this IEasyNetBuilder builder, Action<DbContextOptionsBuilder> setupAction, bool asMainOrmTechnology)
             where TDbContext : EasyNetDbContext
         {
             Check.NotNull(builder, nameof(builder));
@@ -37,7 +39,7 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                 .Replace(new ServiceDescriptor(typeof(IUnitOfWork), typeof(EfCoreUnitOfWork), ServiceLifetime.Transient))
                 .AddScoped<IDbContextProvider<TDbContext>, UnitOfWorkDbContextProvider<TDbContext>>();
 
-            RegisterRepositories<TDbContext>(builder.Services);
+            RegisterRepositories<TDbContext>(builder.Services, asMainOrmTechnology);
 
             return builder;
         }
@@ -47,7 +49,12 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
         /// </summary>
         /// <typeparam name="TDbContext">The context associated with the application.</typeparam>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        private static void RegisterRepositories<TDbContext>(IServiceCollection services) where TDbContext : EasyNetDbContext
+        /// <param name="asMainOrmTechnology">
+        /// Sometimes use more than one orm technology in one system. We need to choice one of them as main technology.
+        /// Use this value to control which orm is main technology.
+        /// We can use <see cref="IRepository{TEntity,TPrimaryKey}"/> to get a repository service if this value is true. We also can use <see cref="IEfCoreRepository{TEntity,TPrimaryKey}"/> at the same time.
+        /// </param>
+        private static void RegisterRepositories<TDbContext>(IServiceCollection services, bool asMainOrmTechnology) where TDbContext : EasyNetDbContext
         {
             var dbContextType = typeof(TDbContext);
             var properties = dbContextType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
@@ -71,12 +78,26 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                             // Add short service IEfCoreRepository<TEntity> if the id property type is int.
                             if (idProperty.PropertyType == typeof(int))
                             {
+                                if (asMainOrmTechnology)
+                                {
+                                    services.AddTransient(
+                                        typeof(IRepository<>).MakeGenericType(entityType),
+                                        typeof(EfCoreRepositoryBase<,>).MakeGenericType(dbContextType, entityType));
+                                }
+
                                 services.AddTransient(
                                     typeof(IEfCoreRepository<>).MakeGenericType(entityType),
                                     typeof(EfCoreRepositoryBase<,>).MakeGenericType(dbContextType, entityType));
                             }
 
                             // Add service IEfCoreRepository<TEntity,TPrimaryKey>
+                            if (asMainOrmTechnology)
+                            {
+                                services.AddTransient(
+                                    typeof(IRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
+                                    typeof(EfCoreRepositoryBase<,,>).MakeGenericType(dbContextType, entityType, idProperty.PropertyType));
+                            }
+
                             services.AddTransient(
                                 typeof(IEfCoreRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
                                 typeof(EfCoreRepositoryBase<,,>).MakeGenericType(dbContextType, entityType, idProperty.PropertyType));
