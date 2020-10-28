@@ -239,7 +239,7 @@ namespace EasyNet.Domain.Repositories
 		/// <param name="id">Id of the entity</param>
 		/// <param name="updateAction">The <see cref="Action{TEntity}"/> that can be used to change values of the entity</param>
 		/// <returns>The <see cref="TEntity"/>.</returns>
-		Task<TEntity> UpdateAsync(TPrimaryKey id, Func<TEntity, Task> updateAction);
+		Task<TEntity>  UpdateAsync(TPrimaryKey id, Func<TEntity, Task> updateAction);
 
 		#endregion
 
