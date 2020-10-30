@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EasyNet\EasyNet.csproj" />
+    <ProjectReference Include="..\EasyNet.Identity.EntityFrameworkCore\EasyNet.Identity.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>
