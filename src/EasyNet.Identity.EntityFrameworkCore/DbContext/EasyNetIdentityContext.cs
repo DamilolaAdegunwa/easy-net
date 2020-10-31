@@ -35,13 +35,13 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 	{
 		public EasyNetIdentityDbContext(DbContextOptions options) : base(options) { }
 
-		public virtual DbSet<TUserRole> UserRoles { get; set; }
+        public virtual DbSet<TUserRole> UserRoles { get; set; }
 
-		public virtual DbSet<TRole> Roles { get; set; }
+        public virtual DbSet<TRole> Roles { get; set; }
 
-		public virtual DbSet<TRoleClaim> RoleClaims { get; set; }
+        public virtual DbSet<TRoleClaim> RoleClaims { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
 

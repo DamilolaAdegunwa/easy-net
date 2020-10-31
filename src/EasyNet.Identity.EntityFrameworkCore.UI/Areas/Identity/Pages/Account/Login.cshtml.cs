@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace EasyNet.Identity.UI.Areas.Identity.Pages.Account
+namespace EasyNet.Identity.EntityFrameworkCore.UI.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     //[ExtAbpIdentityDefaultUI(typeof(LoginModel<>))]

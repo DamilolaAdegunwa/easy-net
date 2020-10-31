@@ -80,12 +80,12 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                             {
                                 if (asMainOrmTechnology)
                                 {
-                                    services.AddTransient(
+                                    services.TryAddTransient(
                                         typeof(IRepository<>).MakeGenericType(entityType),
                                         typeof(EfCoreRepositoryBase<,>).MakeGenericType(dbContextType, entityType));
                                 }
 
-                                services.AddTransient(
+                                services.TryAddTransient(
                                     typeof(IEfCoreRepository<>).MakeGenericType(entityType),
                                     typeof(EfCoreRepositoryBase<,>).MakeGenericType(dbContextType, entityType));
                             }
@@ -93,12 +93,12 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                             // Add service IEfCoreRepository<TEntity,TPrimaryKey>
                             if (asMainOrmTechnology)
                             {
-                                services.AddTransient(
+                                services.TryAddTransient(
                                     typeof(IRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
                                     typeof(EfCoreRepositoryBase<,,>).MakeGenericType(dbContextType, entityType, idProperty.PropertyType));
                             }
 
-                            services.AddTransient(
+                            services.TryAddTransient(
                                 typeof(IEfCoreRepository<,>).MakeGenericType(entityType, idProperty.PropertyType),
                                 typeof(EfCoreRepositoryBase<,,>).MakeGenericType(dbContextType, entityType, idProperty.PropertyType));
                         }

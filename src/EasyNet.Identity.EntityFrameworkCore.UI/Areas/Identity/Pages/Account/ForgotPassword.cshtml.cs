@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace EasyNet.Identity.UI.Areas.Identity.Pages.Account
+namespace EasyNet.Identity.EntityFrameworkCore.UI.Areas.Identity.Pages.Account
 {
     public class ForgotPasswordModel : PageModel
     {

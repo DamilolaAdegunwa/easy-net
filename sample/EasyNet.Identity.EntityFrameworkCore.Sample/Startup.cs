@@ -1,9 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using EasyNet.DependencyInjection;
+using EasyNet.EntityFrameworkCore.DependencyInjection;
+using EasyNet.Identity.EntityFrameworkCore.DependencyInjection;
+using EasyNet.Identity.EntityFrameworkCore.Sample.DbContext;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,14 @@ namespace EasyNet.Identity.EntityFrameworkCore.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
+            services
+                .AddEasyNet()
+                .AddEfCore<IdentityContext>(o =>
+                {
+                    o.UseSqlServer("");
+                }, true)
+            .AddIdentityCore<IdentityContext>(o => { });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

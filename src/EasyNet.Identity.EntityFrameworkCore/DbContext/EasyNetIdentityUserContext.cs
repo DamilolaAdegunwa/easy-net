@@ -54,13 +54,13 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 
 		public virtual DbSet<TUser> Users { get; set; }
 
-		public virtual DbSet<TUserClaim> UserClaims { get; set; }
+        public virtual DbSet<TUserClaim> UserClaims { get; set; }
 
-		public virtual DbSet<TUserLogin> UserLogins { get; set; }
+        public virtual DbSet<TUserLogin> UserLogins { get; set; }
 
-		public virtual DbSet<TUserToken> UserTokens { get; set; }
+        public virtual DbSet<TUserToken> UserTokens { get; set; }
 
-		private StoreOptions GetStoreOptions() => this.GetService<IDbContextOptions>()
+        private StoreOptions GetStoreOptions() => this.GetService<IDbContextOptions>()
 							.Extensions.OfType<CoreOptionsExtension>()
 							.FirstOrDefault()?.ApplicationServiceProvider
 							?.GetService<IOptions<IdentityOptions>>()
