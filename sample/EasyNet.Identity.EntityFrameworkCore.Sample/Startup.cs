@@ -29,7 +29,7 @@ namespace EasyNet.Identity.EntityFrameworkCore.Sample
                 .AddEasyNet()
                 .AddEfCore<IdentityContext>(o =>
                 {
-                    o.UseSqlServer("");
+                    o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 }, true)
             .AddIdentityCore<IdentityContext>(o => { });
         }
