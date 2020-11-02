@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace EasyNet.Identity.EntityFrameworkCore.Domain
 {
-    public class EasyNetSignInManager<TUser> : SignInManager<TUser>
+    public class EasyNetSignInManager<TUser> : SignInManager<TUser>, IEasyNetGeneralSignInManager
         where TUser : class
     {
 #if NetCore31

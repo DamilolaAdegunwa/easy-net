@@ -2,6 +2,7 @@ using EasyNet.DependencyInjection;
 using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.Identity.EntityFrameworkCore.DependencyInjection;
 using EasyNet.Identity.EntityFrameworkCore.Sample.DbContext;
+using EasyNet.Identity.EntityFrameworkCore.Sample.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ namespace EasyNet.Identity.EntityFrameworkCore.Sample
                 {
                     o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
                 }, true)
-            .AddIdentityCore<IdentityContext>(o => { });
+            .AddIdentityCore<IdentityContext, User>(o => { });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

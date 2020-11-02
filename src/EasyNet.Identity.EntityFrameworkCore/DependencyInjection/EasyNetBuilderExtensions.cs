@@ -2,10 +2,10 @@
 using EasyNet.DependencyInjection;
 using EasyNet.EntityFrameworkCore;
 using EasyNet.Identity.EntityFrameworkCore.Domain;
-using EasyNet.Identity.EntityFrameworkCore.Domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
 {
@@ -14,17 +14,6 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
     /// </summary>
     public static class EasyNetBuilderExtensions
     {
-        public static IEasyNetBuilder AddIdentityCore<TDbContext>(
-            this IEasyNetBuilder builder,
-            Action<IdentityOptions> identitySetupAction = null,
-            Action<AuthenticationOptions> authenticationSetupAction = null)
-            where TDbContext : EasyNetDbContext
-        {
-            Check.NotNull(builder, nameof(builder));
-
-            return builder.AddIdentityCore<TDbContext, EasyNetUser>(identitySetupAction, authenticationSetupAction);
-        }
-
         public static IEasyNetBuilder AddIdentityCore<TDbContext, TUser>(
             this IEasyNetBuilder builder,
             Action<IdentityOptions> identitySetupAction = null,
@@ -52,13 +41,15 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
                 .AddSignInManager<EasyNetSignInManager<TUser>>()
                 .AddEntityFrameworkStores<TDbContext>();
 
+            builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
+
             return builder;
         }
 
         public static IEasyNetBuilder AddIdentity<TUser>(
-            this IEasyNetBuilder builder, 
+            this IEasyNetBuilder builder,
             Action<IdentityBuilder> identitySetupAction,
-            Action<AuthenticationOptions> authenticationSetupAction = null)
+            Action<AuthenticationOptions> authenticationSetupAction = null) where TUser : class
         {
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(identitySetupAction, nameof(identitySetupAction));
@@ -70,6 +61,8 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
                     o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
                     authenticationSetupAction?.Invoke(o);
                 });
+
+            builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
 
             identitySetupAction(new IdentityBuilder(typeof(TUser), builder.Services));
 
