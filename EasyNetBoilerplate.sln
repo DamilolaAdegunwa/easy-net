@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyNet.Identity.EntityFram
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyNet.Identity.EntityFrameworkCore.UI", "src\EasyNet.Identity.EntityFrameworkCore.UI\EasyNet.Identity.EntityFrameworkCore.UI.csproj", "{6EFFAD6E-D7AC-46DE-8D63-3C273EB37E44}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyNet.Dapper", "src\EasyNet.Dapper\EasyNet.Dapper.csproj", "{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{6EFFAD6E-D7AC-46DE-8D63-3C273EB37E44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EFFAD6E-D7AC-46DE-8D63-3C273EB37E44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EFFAD6E-D7AC-46DE-8D63-3C273EB37E44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{81573873-15F2-494C-8F22-20ED33DA0054} = {CE627866-6F21-4C0D-97DF-F84BF6444192}
 		{901A9D76-CD40-4460-B2EE-51B464E6D5D8} = {C5C9A9DD-A479-43DC-AC88-2888FED9C85E}
 		{6EFFAD6E-D7AC-46DE-8D63-3C273EB37E44} = {CE627866-6F21-4C0D-97DF-F84BF6444192}
+		{AA09DCEB-98E9-43F0-A0E0-45BF7B7DD751} = {CE627866-6F21-4C0D-97DF-F84BF6444192}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40A59E7E-4882-4AB1-9962-76AC5A32F4B8}
