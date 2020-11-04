@@ -48,6 +48,44 @@ namespace EasyNet.EntityFrameworkCore.Uow
             return (TDbContext)ActiveDbContext;
         }
 
+#if NetCore31
+
+        public virtual async Task<TDbContext> GetOrCreateDbContextAsync<TDbContext>()
+            where TDbContext : DbContext
+        {
+            if (ActiveDbContext == null)
+            {
+                ActiveDbContext = _serviceProvider.GetRequiredService<TDbContext>();
+
+                if (ActiveTransaction != null)
+                {
+
+                    await ActiveDbContext.Database.UseTransactionAsync(ActiveTransaction);
+                }
+            }
+
+            return (TDbContext)ActiveDbContext;
+        }
+#else
+
+        public virtual Task<TDbContext> GetOrCreateDbContextAsync<TDbContext>()
+           where TDbContext : DbContext
+        {
+            if (ActiveDbContext == null)
+            {
+                ActiveDbContext = _serviceProvider.GetRequiredService<TDbContext>();
+
+                if (ActiveTransaction != null)
+                {
+
+                    ActiveDbContext.Database.UseTransaction(ActiveTransaction);
+                }
+            }
+
+            return Task.FromResult((TDbContext)ActiveDbContext);
+        }
+#endif
+
 
         protected override void DisposeUow()
         {

@@ -20,9 +20,9 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         where TEntity : class, IEntity<TPrimaryKey>
         where TDbContext : EasyNetDbContext
     {
-        public EfCoreRepositoryBase(ICurrentUnitOfWorkProvider currentUnitOfWorkProvider)
+        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> contextProvider)
         {
-            DbContext = currentUnitOfWorkProvider.Current.GetDbContext<TDbContext>();
+            DbContext = contextProvider.GetDbContext();
         }
 
         protected TDbContext DbContext { get; }

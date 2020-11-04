@@ -1,4 +1,6 @@
-﻿using EasyNet.Domain.Uow;
+﻿using System.Threading.Tasks;
+using EasyNet.Domain.Uow;
+using EasyNet.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Uow
@@ -19,6 +21,11 @@ namespace EasyNet.EntityFrameworkCore.Uow
         public TDbContext GetDbContext()
         {
             return _currentUnitOfWorkProvider.Current.GetDbContext<TDbContext>();
+        }
+
+        public Task<TDbContext> GetDbContextAsync()
+        {
+            return _currentUnitOfWorkProvider.Current.GetDbContextAsync<TDbContext>();
         }
     }
 }
