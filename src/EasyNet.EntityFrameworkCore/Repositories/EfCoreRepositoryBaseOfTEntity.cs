@@ -7,8 +7,8 @@ namespace EasyNet.EntityFrameworkCore.Repositories
          where TEntity : class, IEntity<int>
          where TDbContext : EasyNetDbContext
     {
-        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
-            : base(dbContextProvider)
+        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> contextProvider)
+            : base(contextProvider)
         {
         }
     }

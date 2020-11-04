@@ -4,9 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
-using EasyNet.Domain.Entities.Auditing;
+using EasyNet.Domain.Uow;
 using EasyNet.EntityFrameworkCore.Uow;
-using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
@@ -21,9 +20,9 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         where TEntity : class, IEntity<TPrimaryKey>
         where TDbContext : EasyNetDbContext
     {
-        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
+        public EfCoreRepositoryBase(IDbContextProvider<TDbContext> contextProvider)
         {
-            DbContext = dbContextProvider.GetDbContext();
+            DbContext = contextProvider.GetDbContext();
         }
 
         protected TDbContext DbContext { get; }
