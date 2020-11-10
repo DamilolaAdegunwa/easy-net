@@ -1,8 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EasyNet.Extensions;
 using EasyNet.Runtime.Session;
 using Microsoft.Extensions.Options;
+#if NET461
+using System.Collections.ObjectModel;
+#else
+using System.Collections.Immutable;
+#endif
 
 namespace EasyNet.Domain.Uow
 {
@@ -36,8 +43,9 @@ namespace EasyNet.Domain.Uow
             DefaultOptions = defaultOptions.Value;
 
             Id = Guid.NewGuid().ToString("N");
+            _filters = DefaultOptions.Filters.ToList();
 
-            AbpSession = NullEasyNetSession.Instance;
+            Session = NullEasyNetSession.Instance;
         }
 
         /// <inheritdoc/>
@@ -58,6 +66,21 @@ namespace EasyNet.Domain.Uow
         /// <inheritdoc/>
         public UnitOfWorkOptions Options { get; private set; }
 
+        /// <inheritdoc/>
+        public IReadOnlyList<DataFilterConfiguration> Filters
+        {
+            get
+            {
+#if Net461
+                return new ReadOnlyCollection<DataFilterConfiguration>(_filters);
+#else
+                return _filters.ToImmutableList();
+#endif
+            }
+        }
+
+        private readonly List<DataFilterConfiguration> _filters;
+
         /// <summary>
         /// Gets default UOW options.
         /// </summary>
@@ -71,7 +94,7 @@ namespace EasyNet.Domain.Uow
         /// <summary>
         /// Reference to current <see cref="IEasyNetSession"/>.
         /// </summary>
-        public IEasyNetSession AbpSession { protected get; set; }
+        public IEasyNetSession Session { protected get; set; }
 
         /// <inheritdoc/>
         public void Begin(UnitOfWorkOptions options)
@@ -89,6 +112,12 @@ namespace EasyNet.Domain.Uow
 
         /// <inheritdoc/>
         public abstract Task SaveChangesAsync();
+
+        /// <inheritdoc/>
+        public bool IsFilterEnabled(string filterName)
+        {
+            return GetFilter(filterName).IsEnabled;
+        }
 
         /// <inheritdoc/>
         public void Complete()
@@ -209,6 +238,17 @@ namespace EasyNet.Domain.Uow
             }
 
             _isCompleteCalledBefore = true;
+        }
+
+        private DataFilterConfiguration GetFilter(string filterName)
+        {
+            var filter = _filters.FirstOrDefault(f => f.FilterName == filterName);
+            if (filter == null)
+            {
+                throw new EasyNetException("Unknown filter name: " + filterName + ". Be sure this filter is registered before.");
+            }
+
+            return filter;
         }
 
         public override string ToString()

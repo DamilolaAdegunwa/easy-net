@@ -1,89 +1,192 @@
-﻿//using System.Threading.Tasks;
-//using EasyNet.DependencyInjection;
-//using EasyNet.Domain.Entities;
-//using EasyNet.Domain.Repositories;
-//using EasyNet.Domain.Uow;
-//using EasyNet.EntityFrameworkCore.Repositories;
-//using EasyNet.EntityFrameworkCore.Tests.DbContext;
-//using EasyNet.EntityFrameworkCore.Tests.Entities;
-//using EasyNet.EntityFrameworkCore.Tests.Fixture;
-//using EasyNet.EntityFrameworkCore.Uow;
-//using Moq;
-//using Xunit;
+﻿using System;
+using System.Data.Common;
+using System.Threading.Tasks;
+using EasyNet.DependencyInjection;
+using EasyNet.Domain.Uow;
+using EasyNet.EntityFrameworkCore.DependencyInjection;
+using EasyNet.EntityFrameworkCore.Tests.DbContext;
+using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.Extensions;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
-//namespace EasyNet.EntityFrameworkCore.Tests
-//{
-//    public class EfCoreUnitOfWorkTest : IClassFixture<MsSqlDatabaseFixtureForUow>
-//    {
-//        private readonly MsSqlDatabaseFixture _msFixture;
+namespace EasyNet.EntityFrameworkCore.Tests
+{
+    public class EfCoreUnitOfWorkTest
+    {
+        private readonly IServiceProvider _serviceProvider;
 
-//        public EfCoreUnitOfWorkTest(MsSqlDatabaseFixtureForUow msFixture)
-//        {
-//            _msFixture = msFixture;
-//        }
+        public EfCoreUnitOfWorkTest()
+        {
+            var services = new ServiceCollection();
 
-//        //[Fact]
-//        //public async Task Test()
-//        //{
-//        //    // 初始化UnitOfWorkManager
-//        //    var unitOfWorkManager = new UnitOfWorkManager(GetIocResolver(), GetCurrentUnitOfWorkProvider(), new UnitOfWorkDefaultOptions());
+            services
+                .AddEasyNet()
+                .AddSession<TestSession>()
+                .AddEfCore<EfCoreContext>(options =>
+                {
+                    options.UseSqlite(CreateInMemoryDatabase());
+                }, true);
 
-//        //    using (var uow = unitOfWorkManager.Begin())
-//        //    {
-//        //        var vehicleRepo = GetRepository<Vehicle>();
+            _serviceProvider = services.BuildServiceProvider();
+        }
 
-//        //        var vehicles = await vehicleRepo.GetAllListAsync();
-//        //        Assert.Equal(10, vehicles.Count);
+        [Fact]
+        public void TestBegin()
+        {
+            #region Without DbContext and Transaction
 
-//        //        await uow.CompleteAsync();
-//        //    }
-//        //}
+            // Arrange
+            var uow1 = GetEfCoreUnitOfWork();
 
-//        #region Helper
+            // Act
+            uow1.Begin(new UnitOfWorkOptions());
+            uow1.Complete();
 
-//        private ICurrentUnitOfWorkProvider GetCurrentUnitOfWorkProvider()
-//        {
-//            return new AsyncLocalCurrentUnitOfWorkProvider();
-//        }
+            #endregion
 
-//        private IIocResolver GetIocResolver()
-//        {
-//            var iocResolverMock = new Mock<IIocResolver>();
-//            iocResolverMock.Setup(p => p.Resolve<IUnitOfWork>()).Returns(() =>
-//            {
-//                return new EfCoreUnitOfWork(GetConnectionStringResolver(), GetDbContextResolver(), new UnitOfWorkDefaultOptions());
-//            });
+            #region With DbContext but Transaction
 
-//            return iocResolverMock.Object;
-//        }
+            // Arrange
+            var uow2 = GetEfCoreUnitOfWork();
 
-//        private IConnectionStringResolver GetConnectionStringResolver()
-//        {
-//            var connectionStringResolverMock = new Moq.Mock<IConnectionStringResolver>();
-//            connectionStringResolverMock.Setup(p => p.GetNameOrConnectionString()).Returns(_msFixture.ConnectionString);
+            // Act
+            uow2.Begin(new UnitOfWorkOptions { IsTransactional = false });
+            ((EfCoreUnitOfWork)uow2).GetOrCreateDbContext<EfCoreContext>();
+            uow2.Complete();
 
-//            return connectionStringResolverMock.Object;
-//        }
+            // Assert
+            Assert.NotNull(uow2.GetPrivateProperty<Microsoft.EntityFrameworkCore.DbContext>("ActiveDbContext"));
+            Assert.Null(uow2.GetPrivateProperty<IDbContextTransaction>("ActiveTransaction"));
 
-//        private IDbContextProvider<UnitTestContext> GetDbContextProvider()
-//        {
-//            return new UnitOfWorkDbContextProvider<UnitTestContext>(GetCurrentUnitOfWorkProvider());
-//        }
+            #endregion
 
-//        private IDbContextResolver GetDbContextResolver()
-//        {
-//            var dbContextResolverMock = new Moq.Mock<IDbContextResolver>();
-//            dbContextResolverMock.Setup(p => p.Resolve<UnitTestContext>(It.IsRegex(""), null)).Returns(_msFixture.GetDbContext());
+            #region With DbContext and Transaction
 
-//            return dbContextResolverMock.Object;
-//        }
+            // Arrange
+            var uow3 = GetEfCoreUnitOfWork();
 
-//        private IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
-//        {
-//            return new EfCoreRepositoryBase<UnitTestContext, TEntity>(GetDbContextProvider());
-//        }
+            // Act
+            uow3.Begin(new UnitOfWorkOptions { IsTransactional = true });
+            ((EfCoreUnitOfWork)uow3).GetOrCreateDbContext<EfCoreContext>();
+            uow3.Complete();
+
+            // Assert
+            Assert.NotNull(uow3.GetPrivateProperty<Microsoft.EntityFrameworkCore.DbContext>("ActiveDbContext"));
+            Assert.NotNull(uow3.GetPrivateProperty<IDbContextTransaction>("ActiveTransaction"));
+
+            #endregion
+        }
+
+        [Fact]
+        public async Task TestBeginAsync()
+        {
+            #region Without DbContext and Transaction
+
+            // Arrange
+            var uow1 = GetEfCoreUnitOfWork();
+
+            // Act
+            uow1.Begin(new UnitOfWorkOptions());
+            await uow1.CompleteAsync();
+
+            #endregion
+
+            #region With DbContext but Transaction
+
+            // Arrange
+            var uow2 = GetEfCoreUnitOfWork();
+
+            // Act
+            uow2.Begin(new UnitOfWorkOptions { IsTransactional = false });
+            ((EfCoreUnitOfWork)uow2).GetOrCreateDbContext<EfCoreContext>();
+            await uow2.CompleteAsync();
+
+            // Assert
+            Assert.NotNull(uow2.GetPrivateProperty<Microsoft.EntityFrameworkCore.DbContext>("ActiveDbContext"));
+            Assert.Null(uow2.GetPrivateProperty<IDbContextTransaction>("ActiveTransaction"));
+
+            #endregion
+
+            #region With DbContext and Transaction
+
+            // Arrange
+            var uow3 = GetEfCoreUnitOfWork();
+
+            // Act
+            uow3.Begin(new UnitOfWorkOptions { IsTransactional = true });
+            ((EfCoreUnitOfWork)uow3).GetOrCreateDbContext<EfCoreContext>();
+            await uow3.CompleteAsync();
+
+            // Assert
+            Assert.NotNull(uow3.GetPrivateProperty<Microsoft.EntityFrameworkCore.DbContext>("ActiveDbContext"));
+            Assert.NotNull(uow3.GetPrivateProperty<IDbContextTransaction>("ActiveTransaction"));
+
+            #endregion
+        }
+
+        //#region Helper
+
+        //private ICurrentUnitOfWorkProvider GetCurrentUnitOfWorkProvider()
+        //{
+        //    return new AsyncLocalCurrentUnitOfWorkProvider();
+        //}
+
+        //private IIocResolver GetIocResolver()
+        //{
+        //    var iocResolverMock = new Mock<IIocResolver>();
+        //    iocResolverMock.Setup(p => p.Resolve<IUnitOfWork>()).Returns(() =>
+        //    {
+        //        return new EfCoreUnitOfWork(GetConnectionStringResolver(), GetDbContextResolver(), new UnitOfWorkDefaultOptions());
+        //    });
+
+        //    return iocResolverMock.Object;
+        //}
+
+        //private IConnectionStringResolver GetConnectionStringResolver()
+        //{
+        //    var connectionStringResolverMock = new Moq.Mock<IConnectionStringResolver>();
+        //    connectionStringResolverMock.Setup(p => p.GetNameOrConnectionString()).Returns(_msFixture.ConnectionString);
+
+        //    return connectionStringResolverMock.Object;
+        //}
+
+        //private IDbContextProvider<UnitTestContext> GetDbContextProvider()
+        //{
+        //    return new UnitOfWorkDbContextProvider<UnitTestContext>(GetCurrentUnitOfWorkProvider());
+        //}
+
+        //private IDbContextResolver GetDbContextResolver()
+        //{
+        //    var dbContextResolverMock = new Moq.Mock<IDbContextResolver>();
+        //    dbContextResolverMock.Setup(p => p.Resolve<UnitTestContext>(It.IsRegex(""), null)).Returns(_msFixture.GetDbContext());
+
+        //    return dbContextResolverMock.Object;
+        //}
+
+        //private IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
+        //{
+        //    return new EfCoreRepositoryBase<UnitTestContext, TEntity>(GetDbContextProvider());
+        //}
 
 
-//        #endregion
-//    }
-//}
+        //#endregion
+
+        private IUnitOfWork GetEfCoreUnitOfWork()
+        {
+            return _serviceProvider.GetService<IUnitOfWork>();
+        }
+
+        private DbConnection CreateInMemoryDatabase()
+        {
+            var connection = new SqliteConnection("Filename=:memory:");
+
+            connection.Open();
+
+            return connection;
+        }
+    }
+}

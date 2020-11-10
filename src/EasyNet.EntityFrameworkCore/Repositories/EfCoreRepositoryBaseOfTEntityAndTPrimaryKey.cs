@@ -4,9 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
-using EasyNet.Domain.Entities.Auditing;
 using EasyNet.EntityFrameworkCore.Uow;
-using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.EntityFrameworkCore.Repositories
@@ -21,14 +19,14 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         where TEntity : class, IEntity<TPrimaryKey>
         where TDbContext : EasyNetDbContext
     {
+        protected TDbContext DbContext { get; }
+
+        protected virtual DbSet<TEntity> Table => DbContext.Set<TEntity>();
+
         public EfCoreRepositoryBase(IDbContextProvider<TDbContext> dbContextProvider)
         {
             DbContext = dbContextProvider.GetDbContext();
         }
-
-        protected TDbContext DbContext { get; }
-
-        protected virtual DbSet<TEntity> DbQueryTable => DbContext.Set<TEntity>();
 
         /// <inheritdoc/>
         public DbContext GetDbContext()
@@ -37,9 +35,9 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         }
 
         /// <inheritdoc/>
-        public IQueryable<TEntity> GetQueryable()
+        public IQueryable<TEntity> GetAll()
         {
-            return DbQueryTable.AsQueryable();
+            return Table.AsQueryable();
         }
 
         #region Select/Get/Query
@@ -47,25 +45,25 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual List<TEntity> GetAllList()
         {
-            return DbQueryTable.ToList();
+            return GetAll().ToList();
         }
 
         /// <inheritdoc/>
         public virtual Task<List<TEntity>> GetAllListAsync()
         {
-            return DbQueryTable.ToListAsync();
+            return GetAll().ToListAsync();
         }
 
         /// <inheritdoc/>
         public virtual List<TEntity> GetAllList(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.Where(predicate).ToList();
+            return GetAll().Where(predicate).ToList();
         }
 
         /// <inheritdoc/>
         public virtual Task<List<TEntity>> GetAllListAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.Where(predicate).ToListAsync();
+            return GetAll().Where(predicate).ToListAsync();
         }
 
         /// <inheritdoc/>
@@ -91,73 +89,73 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual TEntity Single(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.Single(predicate);
+            return GetAll().Single(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.SingleAsync(predicate);
+            return GetAll().SingleAsync(predicate);
         }
 
         /// <inheritdoc/>
         public TEntity First()
         {
-            return DbQueryTable.First();
+            return GetAll().First();
         }
 
         /// <inheritdoc/>
         public Task<TEntity> FirstAsync()
         {
-            return DbQueryTable.FirstAsync();
+            return GetAll().FirstAsync();
         }
 
         /// <inheritdoc/>
         public virtual TEntity First(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.First(predicate);
+            return GetAll().First(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.FirstAsync(predicate);
+            return GetAll().FirstAsync(predicate);
         }
 
         /// <inheritdoc/>
         public virtual TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.SingleOrDefault(predicate);
+            return GetAll().SingleOrDefault(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.SingleOrDefaultAsync(predicate);
+            return GetAll().SingleOrDefaultAsync(predicate);
         }
 
         /// <inheritdoc/>
         public virtual TEntity FirstOrDefault()
         {
-            return DbQueryTable.FirstOrDefault();
+            return GetAll().FirstOrDefault();
         }
 
         /// <inheritdoc/>
         public virtual Task<TEntity> FirstOrDefaultAsync()
         {
-            return DbQueryTable.FirstOrDefaultAsync();
+            return GetAll().FirstOrDefaultAsync();
         }
 
         /// <inheritdoc/>
         public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.FirstOrDefault(predicate);
+            return GetAll().FirstOrDefault(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.FirstOrDefaultAsync(predicate);
+            return GetAll().FirstOrDefaultAsync(predicate);
         }
 
         #endregion
@@ -167,14 +165,14 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual TEntity Insert(TEntity entity)
         {
-            DbQueryTable.Add(entity);
+            Table.Add(entity);
             return entity;
         }
 
         /// <inheritdoc/>
         public virtual async Task<TEntity> InsertAsync(TEntity entity)
         {
-            await DbQueryTable.AddAsync(entity);
+            await Table.AddAsync(entity);
             return entity;
         }
 
@@ -317,7 +315,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         public virtual void Delete(TEntity entity)
         {
             AttachIfNot(entity);
-            DbQueryTable.Remove(entity);
+            Table.Remove(entity);
         }
 
         /// <inheritdoc/>
@@ -373,7 +371,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
             foreach (var entity in entities)
             {
-                DbQueryTable.Remove(entity);
+                Table.Remove(entity);
             }
         }
 
@@ -384,7 +382,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
 
             foreach (var entity in entities)
             {
-                DbQueryTable.Remove(entity);
+                Table.Remove(entity);
             }
         }
 
@@ -395,61 +393,61 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// <inheritdoc/>
         public virtual int Count()
         {
-            return DbQueryTable.Count();
+            return GetAll().Count();
         }
 
         /// <inheritdoc/>
         public virtual Task<int> CountAsync()
         {
-            return DbQueryTable.CountAsync();
+            return GetAll().CountAsync();
         }
 
         /// <inheritdoc/>
         public virtual int Count(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.Count(predicate);
+            return GetAll().Count(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.CountAsync(predicate);
+            return GetAll().CountAsync(predicate);
         }
 
         /// <inheritdoc/>
         public virtual long LongCount()
         {
-            return DbQueryTable.LongCount();
+            return GetAll().LongCount();
         }
 
         /// <inheritdoc/>
         public virtual Task<long> LongCountAsync()
         {
-            return DbQueryTable.LongCountAsync();
+            return GetAll().LongCountAsync();
         }
 
         /// <inheritdoc/>
         public virtual long LongCount(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.LongCount(predicate);
+            return GetAll().LongCount(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<long> LongCountAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.LongCountAsync(predicate);
+            return GetAll().LongCountAsync(predicate);
         }
 
         /// <inheritdoc/>
         public virtual bool Any(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.Any(predicate);
+            return GetAll().Any(predicate);
         }
 
         /// <inheritdoc/>
         public virtual Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return DbQueryTable.AnyAsync(predicate);
+            return GetAll().AnyAsync(predicate);
         }
 
         #endregion
@@ -462,7 +460,7 @@ namespace EasyNet.EntityFrameworkCore.Repositories
                 return;
             }
 
-            DbQueryTable.Attach(entity);
+            Table.Attach(entity);
         }
 
         protected virtual TEntity GetFromChangeTrackerOrNull(TPrimaryKey id)

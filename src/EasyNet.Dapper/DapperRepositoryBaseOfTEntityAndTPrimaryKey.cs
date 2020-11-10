@@ -28,6 +28,7 @@ namespace EasyNet.Dapper
 
         #region Select/Get/Query
 
+        /// <inheritdoc/>
         public IEnumerable<TEntity> GetAllList(
            string sql,
            object param = null,
@@ -38,6 +39,7 @@ namespace EasyNet.Dapper
             return Connection.Query<TEntity>(sql, param, Transaction, buffered, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public Task<IEnumerable<TEntity>> GetAllListAsync(
             string sql,
             object param = null,
@@ -47,6 +49,7 @@ namespace EasyNet.Dapper
             return Connection.QueryAsync<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public TEntity Single(
             string sql,
             object param = null,
@@ -56,6 +59,7 @@ namespace EasyNet.Dapper
             return Connection.QuerySingle<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public Task<TEntity> SingleAsync(
             string sql,
             object param = null,
@@ -65,6 +69,7 @@ namespace EasyNet.Dapper
             return Connection.QuerySingleAsync<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public TEntity First(
             string sql,
             object param = null,
@@ -74,6 +79,7 @@ namespace EasyNet.Dapper
             return Connection.QueryFirst<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public Task<TEntity> FirstAsync(
             string sql,
             object param = null,
@@ -83,6 +89,7 @@ namespace EasyNet.Dapper
             return Connection.QueryFirstAsync<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public TEntity SingleOrDefault(
             string sql,
             object param = null,
@@ -92,6 +99,7 @@ namespace EasyNet.Dapper
             return Connection.QuerySingleOrDefault<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public Task<TEntity> SingleOrDefaultAsync(
             string sql,
             object param = null,
@@ -101,6 +109,7 @@ namespace EasyNet.Dapper
             return Connection.QuerySingleOrDefaultAsync<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public TEntity FirstOrDefault(
             string sql,
             object param = null,
@@ -110,6 +119,7 @@ namespace EasyNet.Dapper
             return Connection.QueryFirstOrDefault<TEntity>(sql, param, Transaction, PatchCommandTimeout(commandTimeout), commandType);
         }
 
+        /// <inheritdoc/>
         public Task<TEntity> FirstOrDefaultAsync(
             string sql,
             object param = null,

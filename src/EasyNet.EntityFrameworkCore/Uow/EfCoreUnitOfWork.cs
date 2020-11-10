@@ -19,11 +19,11 @@ namespace EasyNet.EntityFrameworkCore.Uow
         protected DbContext ActiveDbContext { get; private set; }
 
         protected IDbContextTransaction ActiveTransaction { get; private set; }
-        
+
         public EfCoreUnitOfWork(IServiceProvider serviceProvider, IOptions<UnitOfWorkDefaultOptions> defaultOptions)
             : base(defaultOptions)
         {
-	        ServiceProvider = serviceProvider;
+            ServiceProvider = serviceProvider;
         }
 
         public override void SaveChanges()
@@ -33,7 +33,12 @@ namespace EasyNet.EntityFrameworkCore.Uow
 
         public override Task SaveChangesAsync()
         {
-            return ActiveDbContext?.SaveChangesAsync();
+            if (ActiveDbContext != null)
+            {
+                return ActiveDbContext.SaveChangesAsync();
+            }
+
+            return Task.CompletedTask;
         }
 
         protected override void CompleteUow()
@@ -50,24 +55,23 @@ namespace EasyNet.EntityFrameworkCore.Uow
 
         protected virtual void CommitTransaction()
         {
-            if (Options.IsTransactional == true)
-            {
-                ActiveTransaction?.Commit();
-            }
+            ActiveTransaction?.Commit();
         }
 
         protected virtual Task CommitTransactionAsync()
         {
-            if (Options.IsTransactional == true)
-            {
 #if NetCore31
-                ActiveTransaction?.CommitAsync();
-#else
-                ActiveTransaction?.Commit();
-#endif
+            if (ActiveTransaction != null)
+            {
+                return ActiveTransaction.CommitAsync();
             }
 
             return Task.CompletedTask;
+#else
+            ActiveTransaction?.Commit();
+
+            return Task.CompletedTask;
+#endif
         }
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>()
@@ -75,7 +79,7 @@ namespace EasyNet.EntityFrameworkCore.Uow
         {
             if (ActiveDbContext == null)
             {
-	            ActiveDbContext = ServiceProvider.GetRequiredService<TDbContext>();
+                ActiveDbContext = ServiceProvider.GetRequiredService<TDbContext>();
 
                 if (Options.IsTransactional == true)
                 {
@@ -85,7 +89,6 @@ namespace EasyNet.EntityFrameworkCore.Uow
 
             return (TDbContext)ActiveDbContext;
         }
-
 
         protected override void DisposeUow()
         {

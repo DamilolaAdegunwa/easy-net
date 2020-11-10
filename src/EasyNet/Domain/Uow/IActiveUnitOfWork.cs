@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EasyNet.Domain.Uow
@@ -31,6 +32,11 @@ namespace EasyNet.Domain.Uow
         UnitOfWorkOptions Options { get; }
 
         /// <summary>
+        /// Gets data filter configurations for this unit of work.
+        /// </summary>
+        IReadOnlyList<DataFilterConfiguration> Filters { get; }
+
+        /// <summary>
         /// Is this UOW disposed?
         /// </summary>
         bool IsDisposed { get; }
@@ -52,5 +58,11 @@ namespace EasyNet.Domain.Uow
         /// since all changes saved at end of a unit of work automatically.
         /// </summary>
         Task SaveChangesAsync();
+
+        /// <summary>
+        /// Checks if a filter is enabled or not.
+        /// </summary>
+        /// <param name="filterName">Name of the filter. <see cref="EasyNetDataFilters"/> for standard filters.</param>
+        bool IsFilterEnabled(string filterName);
     }
 }

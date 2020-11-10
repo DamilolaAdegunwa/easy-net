@@ -1,5 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
+#if NET461
+using System.Collections.ObjectModel;
+#else
+using System.Collections.Immutable;
+#endif
 
 namespace EasyNet.Domain.Uow
 {
@@ -9,6 +16,12 @@ namespace EasyNet.Domain.Uow
         {
             IsTransactional = true;
             Scope = TransactionScopeOption.Required;
+            _filters = new List<DataFilterConfiguration>
+            {
+                new DataFilterConfiguration(EasyNetDataFilters.MustHaveTenant, true),
+                new DataFilterConfiguration(EasyNetDataFilters.MayHaveTenant, true),
+                new DataFilterConfiguration(EasyNetDataFilters.SoftDelete, true)
+            };
         }
 
         /// <summary>
@@ -33,5 +46,35 @@ namespace EasyNet.Domain.Uow
         /// Uses default value if not supplied.
         /// </summary>
         public IsolationLevel? IsolationLevel { get; set; }
-	}
+
+        public IReadOnlyList<DataFilterConfiguration> Filters
+        {
+            get
+            {
+#if Net461
+                return new ReadOnlyCollection<DataFilterConfiguration>(_filters);
+#else
+                return _filters.ToImmutableList();
+#endif
+            }
+        }
+
+        private readonly List<DataFilterConfiguration> _filters;
+
+        public void RegisterFilter(string filterName, bool isEnabledByDefault)
+        {
+            if (_filters.Any(f => f.FilterName == filterName))
+            {
+                throw new EasyNetException("There is already a filter with name: " + filterName);
+            }
+
+            _filters.Add(new DataFilterConfiguration(filterName, isEnabledByDefault));
+        }
+
+        public void OverrideFilter(string filterName, bool isEnabledByDefault)
+        {
+            _filters.RemoveAll(f => f.FilterName == filterName);
+            _filters.Add(new DataFilterConfiguration(filterName, isEnabledByDefault));
+        }
+    }
 }

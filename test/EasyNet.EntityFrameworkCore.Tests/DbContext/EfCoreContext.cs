@@ -1,12 +1,14 @@
-﻿using EasyNet.EntityFrameworkCore.Tests.Entities;
+﻿using EasyNet.Domain.Uow;
+using EasyNet.EntityFrameworkCore.Tests.Entities;
 using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EasyNet.EntityFrameworkCore.Tests.DbContext
 {
     public class EfCoreContext : EasyNetDbContext
     {
-        public EfCoreContext(DbContextOptions options, IEasyNetSession session = null) : base(options, session)
+        public EfCoreContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider = null, IEasyNetSession session = null) : base(options, currentUnitOfWorkProvider, session)
         {
         }
 
@@ -19,5 +21,13 @@ namespace EasyNet.EntityFrameworkCore.Tests.DbContext
         public virtual DbSet<TestModificationAudited> TestModificationAudited { get; set; }
 
         public virtual DbSet<TestDeletionAudited> TestDeletionAudited { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder =>
+            {
+                builder.AddDebug();
+            }));
+        }
     }
 }

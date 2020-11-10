@@ -18,6 +18,6 @@ namespace EasyNet.EntityFrameworkCore.Repositories
         /// Gets <see cref="IQueryable{T}"/>.
         /// </summary>
         /// <returns></returns>
-        IQueryable<TEntity> GetQueryable();
+        IQueryable<TEntity> GetAll();
     }
 }
