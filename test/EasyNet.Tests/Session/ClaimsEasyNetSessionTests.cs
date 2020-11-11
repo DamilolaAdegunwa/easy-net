@@ -23,6 +23,7 @@ namespace EasyNet.Tests.Session
 
 			// Assert
 			Assert.True(string.IsNullOrEmpty(session.UserId));
+            Assert.True(string.IsNullOrEmpty(session.TenantId));
 			Assert.True(string.IsNullOrEmpty(session.UserName));
 			Assert.True(string.IsNullOrEmpty(session.Role));
 		}
@@ -36,6 +37,7 @@ namespace EasyNet.Tests.Session
 			var principal = new ClaimsPrincipal();
 			var identity = new ClaimsIdentity();
 			identity.AddClaim(new Claim(EasyNetClaimTypes.UserId, "1"));
+            identity.AddClaim(new Claim(EasyNetClaimTypes.TenantId, "2"));
 			identity.AddClaim(new Claim(EasyNetClaimTypes.UserName, "Test"));
 			identity.AddClaim(new Claim(EasyNetClaimTypes.Role, "Admin"));
 			principal.AddIdentity(identity);
@@ -48,6 +50,7 @@ namespace EasyNet.Tests.Session
 
 			// Assert
 			Assert.Equal("1", session.UserId);
+            Assert.Equal("2", session.TenantId);
 			Assert.Equal("Test", session.UserName);
 			Assert.Equal("Admin", session.Role);
 		}

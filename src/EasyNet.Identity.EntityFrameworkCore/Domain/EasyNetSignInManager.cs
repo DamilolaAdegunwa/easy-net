@@ -9,15 +9,15 @@ namespace EasyNet.Identity.EntityFrameworkCore.Domain
     public class EasyNetSignInManager<TUser> : SignInManager<TUser>, IEasyNetGeneralSignInManager
         where TUser : class
     {
-#if NetCore31
+#if Net461 || NetStandard20
         public EasyNetSignInManager(
             UserManager<TUser> userManager,
             IHttpContextAccessor contextAccessor,
             IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<TUser>> logger,
-            IAuthenticationSchemeProvider schemes,
-            IUserConfirmation<TUser> confirmation) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
+            IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor,
+            logger, schemes)
         {
         }
 #else
@@ -27,8 +27,8 @@ namespace EasyNet.Identity.EntityFrameworkCore.Domain
             IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptions<IdentityOptions> optionsAccessor,
             ILogger<SignInManager<TUser>> logger,
-            IAuthenticationSchemeProvider schemes) : base(userManager, contextAccessor, claimsFactory, optionsAccessor,
-            logger, schemes)
+            IAuthenticationSchemeProvider schemes,
+            IUserConfirmation<TUser> confirmation) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
         {
         }
 #endif

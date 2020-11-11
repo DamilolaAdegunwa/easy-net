@@ -1,23 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.2;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.0-dev.1</Version>
     <Authors>Sid Zhao</Authors>
     <Company>Sid Zhao</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>aspnetcore, identity</PackageTags>
+    <PackageTags>aspnetcore, identity, ui</PackageTags>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EasyNet.Identity.EntityFrameworkCore\EasyNet.Identity.EntityFrameworkCore.csproj" />

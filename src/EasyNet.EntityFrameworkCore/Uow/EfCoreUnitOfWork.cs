@@ -60,15 +60,15 @@ namespace EasyNet.EntityFrameworkCore.Uow
 
         protected virtual Task CommitTransactionAsync()
         {
-#if NetCore31
+#if Net461 || NetStandard20
+            ActiveTransaction?.Commit();
+
+            return Task.CompletedTask;
+#else
             if (ActiveTransaction != null)
             {
                 return ActiveTransaction.CommitAsync();
             }
-
-            return Task.CompletedTask;
-#else
-            ActiveTransaction?.Commit();
 
             return Task.CompletedTask;
 #endif

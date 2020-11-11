@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using EasyNet.Extensions;
 using EasyNet.Runtime.Session;
 using Microsoft.Extensions.Options;
-#if NET461
-using System.Collections.ObjectModel;
-#else
-using System.Collections.Immutable;
-#endif
 
 namespace EasyNet.Domain.Uow
 {
@@ -67,17 +63,7 @@ namespace EasyNet.Domain.Uow
         public UnitOfWorkOptions Options { get; private set; }
 
         /// <inheritdoc/>
-        public IReadOnlyList<DataFilterConfiguration> Filters
-        {
-            get
-            {
-#if Net461
-                return new ReadOnlyCollection<DataFilterConfiguration>(_filters);
-#else
-                return _filters.ToImmutableList();
-#endif
-            }
-        }
+        public IReadOnlyList<DataFilterConfiguration> Filters => _filters.ToImmutableList();
 
         private readonly List<DataFilterConfiguration> _filters;
 

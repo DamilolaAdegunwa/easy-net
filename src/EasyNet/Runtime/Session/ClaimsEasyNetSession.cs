@@ -35,7 +35,7 @@ namespace EasyNet.Runtime.Session
             {
                 EnsureLoadFromPrincipal();
 
-                return _userName;
+                return _tenantId;
             }
         }
 
@@ -46,7 +46,7 @@ namespace EasyNet.Runtime.Session
             {
                 EnsureLoadFromPrincipal();
 
-                return _tenantId;
+                return _userName;
             }
         }
 

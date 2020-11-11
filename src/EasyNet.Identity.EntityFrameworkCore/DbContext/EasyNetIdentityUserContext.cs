@@ -84,8 +84,14 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 			builder.Entity<TUser>(b =>
 			{
 				b.HasKey(u => u.Id);
-				b.HasIndex(u => u.NormalizedUserName).HasName("UserNameIndex").IsUnique();
-				b.HasIndex(u => u.NormalizedEmail).HasName("EmailIndex");
+#if Net50
+				b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
+				b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
+#else
+                b.HasIndex(u => u.NormalizedUserName).HasName("UserNameIndex").IsUnique();
+                b.HasIndex(u => u.NormalizedEmail).HasName("EmailIndex");
+#endif
+
 				b.ToTable("Users");
 				b.Property(u => u.ConcurrencyStamp).IsConcurrencyToken();
 

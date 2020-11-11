@@ -53,7 +53,11 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 			builder.Entity<TRole>(b =>
 			{
 				b.HasKey(r => r.Id);
-				b.HasIndex(r => r.NormalizedName).HasName("RoleNameIndex").IsUnique();
+#if Net50
+				b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
+#else
+                b.HasIndex(r => r.NormalizedName).HasName("RoleNameIndex").IsUnique();
+#endif
 				b.ToTable("Roles");
 				b.Property(r => r.ConcurrencyStamp).IsConcurrencyToken();
 

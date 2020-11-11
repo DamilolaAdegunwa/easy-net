@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Transactions;
-#if NET461
-using System.Collections.ObjectModel;
-#else
-using System.Collections.Immutable;
-#endif
 
 namespace EasyNet.Domain.Uow
 {
@@ -47,17 +43,7 @@ namespace EasyNet.Domain.Uow
         /// </summary>
         public IsolationLevel? IsolationLevel { get; set; }
 
-        public IReadOnlyList<DataFilterConfiguration> Filters
-        {
-            get
-            {
-#if Net461
-                return new ReadOnlyCollection<DataFilterConfiguration>(_filters);
-#else
-                return _filters.ToImmutableList();
-#endif
-            }
-        }
+        public IReadOnlyList<DataFilterConfiguration> Filters => _filters.ToImmutableList();
 
         private readonly List<DataFilterConfiguration> _filters;
 
