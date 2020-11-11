@@ -9,7 +9,6 @@ using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Tests.DbContext;
 using EasyNet.EntityFrameworkCore.Tests.Entities;
-using EasyNet.Extensions;
 using EasyNet.Runtime.Session;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -1219,6 +1218,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
     public class TestSession : EasyNetSessionBase
     {
         public override string UserId => "1";
+        public override string TenantId => "1";
         public override string UserName => "Test";
         public override string Role => "Admin";
     }

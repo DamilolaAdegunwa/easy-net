@@ -45,7 +45,7 @@ namespace EasyNet.Domain.Uow
             Id = Guid.NewGuid().ToString("N");
             _filters = DefaultOptions.Filters.ToList();
 
-            Session = NullEasyNetSession.Instance;
+            EasyNetSession = NullEasyNetSession.Instance;
         }
 
         /// <inheritdoc/>
@@ -94,7 +94,7 @@ namespace EasyNet.Domain.Uow
         /// <summary>
         /// Reference to current <see cref="IEasyNetSession"/>.
         /// </summary>
-        public IEasyNetSession Session { protected get; set; }
+        public IEasyNetSession EasyNetSession { protected get; set; }
 
         /// <inheritdoc/>
         public void Begin(UnitOfWorkOptions options)

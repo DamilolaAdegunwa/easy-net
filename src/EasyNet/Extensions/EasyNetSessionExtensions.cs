@@ -13,14 +13,14 @@ namespace EasyNet.Extensions
 		/// </summary>
 		/// <param name="session">The <see cref="IEasyNetSession"/></param>
 		/// <returns>The user id.</returns>
-		/// <exception cref="EasyNetException">Throw exception if Session.UserId is null.</exception>
+		/// <exception cref="EasyNetException">Throw exception if EasyNetSession.UserId is null.</exception>
 		/// <exception cref="FormatException">Throw exception if the user id is not in the correct format.</exception>
 		/// <exception cref="OverflowException">Throw exception if the user id is greater than <see cref="Int32.MaxValue"/>.</exception>
 		public static int GetIntUserId(this IEasyNetSession session)
 		{
 			Check.NotNull(session, nameof(session));
 
-			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("Session.UserId is null. Probably, user is not logged in.");
+			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("EasyNetSession.UserId is null. Probably, user is not logged in.");
 
 			return int.Parse(session.UserId);
 		}
@@ -46,14 +46,14 @@ namespace EasyNet.Extensions
 		/// </summary>
 		/// <param name="session">The <see cref="IEasyNetSession"/></param>
 		/// <returns>The user id.</returns>
-		/// <exception cref="EasyNetException">Throw exception if Session.UserId is null.</exception>
+		/// <exception cref="EasyNetException">Throw exception if EasyNetSession.UserId is null.</exception>
 		/// <exception cref="FormatException">Throw exception if the user id is not in the correct format.</exception>
 		/// <exception cref="OverflowException">Throw exception if the user id is greater than <see cref="Int64.MaxValue"/>.</exception>
 		public static long GetLongUserId(this IEasyNetSession session)
 		{
 			Check.NotNull(session, nameof(session));
 
-			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("Session.UserId is null. Probably, user is not logged in.");
+			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("EasyNetSession.UserId is null. Probably, user is not logged in.");
 
 			return long.Parse(session.UserId);
 		}
@@ -79,13 +79,13 @@ namespace EasyNet.Extensions
 		/// </summary>
 		/// <param name="session">The <see cref="IEasyNetSession"/></param>
 		/// <returns>The user id.</returns>
-		/// <exception cref="EasyNetException">Throw exception if Session.UserId is null.</exception>
+		/// <exception cref="EasyNetException">Throw exception if EasyNetSession.UserId is null.</exception>
 		/// <exception cref="FormatException">Throw exception if the user id is not in the correct format.</exception>
 		public static Guid GetGuidUserId(this IEasyNetSession session)
 		{
 			Check.NotNull(session, nameof(session));
 
-			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("Session.UserId is null. Probably, user is not logged in.");
+			if (string.IsNullOrEmpty(session.UserId)) throw new EasyNetException("EasyNetSession.UserId is null. Probably, user is not logged in.");
 
 			return Guid.Parse(session.UserId);
 		}

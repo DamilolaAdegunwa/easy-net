@@ -5,7 +5,10 @@
 		/// <inheritdoc/>
 		public abstract string UserId { get; }
 
-		/// <inheritdoc/>
+        /// <inheritdoc/>
+		public abstract string TenantId { get; }
+
+        /// <inheritdoc/>
 		public abstract string UserName { get; }
 
 		/// <inheritdoc/>

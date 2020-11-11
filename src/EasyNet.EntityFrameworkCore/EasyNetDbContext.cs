@@ -20,17 +20,22 @@ namespace EasyNet.EntityFrameworkCore
     {
         protected virtual bool IsSoftDeleteFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(EasyNetDataFilters.SoftDelete) == true;
 
+        protected virtual bool IsMayHaveTenantFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(EasyNetDataFilters.MayHaveTenant) == true;
+
+        protected virtual bool IsMustHaveTenantFilterEnabled => CurrentUnitOfWorkProvider?.Current?.IsFilterEnabled(EasyNetDataFilters.MustHaveTenant) == true;
+
+
         private static readonly MethodInfo ConfigureGlobalFiltersMethodInfo = typeof(EasyNetDbContext).GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.Instance | BindingFlags.NonPublic);
 
         public EasyNetDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider = null, IEasyNetSession session = null) : base(options)
         {
             CurrentUnitOfWorkProvider = currentUnitOfWorkProvider;
-            Session = session ?? NullEasyNetSession.Instance;
+            EasyNetSession = session ?? NullEasyNetSession.Instance;
         }
 
         protected ICurrentUnitOfWorkProvider CurrentUnitOfWorkProvider { get; }
 
-        protected IEasyNetSession Session { get; }
+        protected IEasyNetSession EasyNetSession { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,73 +46,47 @@ namespace EasyNet.EntityFrameworkCore
                 ConfigureGlobalFiltersMethodInfo
                     .MakeGenericMethod(entityType.ClrType)
                     .Invoke(this, new object[] { modelBuilder, entityType });
-
-                //ConfigureGlobalValueConverterMethodInfo
-                //    .MakeGenericMethod(entityType.ClrType)
-                //    .Invoke(this, new object[] { modelBuilder, entityType });
             }
         }
 
         protected void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType entityType)
             where TEntity : class
         {
-            if (entityType.BaseType == null && ShouldFilterEntity<TEntity>(entityType))
+            if (entityType.BaseType == null)
             {
-                var filterExpression = CreateFilterExpression<TEntity>();
-                if (filterExpression != null)
+                Expression<Func<TEntity, bool>> expression = null;
+
+                if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
                 {
-                    modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
+                    if (IsSoftDeleteFilterEnabled)
+                    {
+                        Expression<Func<TEntity, bool>> softDeleteFilter = e => ((ISoftDelete)e).IsDeleted == false;
+                        expression = softDeleteFilter;
+                    }
+                }
+
+                if (typeof(IMustHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
+                {
+                    if (IsMustHaveTenantFilterEnabled)
+                    {
+                        //Expression<Func<TEntity, bool>> mustHaveTenantFilter = e => ((IMustHaveTenant)e).TenantId == CurrentTenantId;
+                        //expression = expression == null ? mustHaveTenantFilter : CombineExpressions(expression, mustHaveTenantFilter);
+                    }
+                }
+                else if (typeof(IMayHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
+                {
+                    if (IsMayHaveTenantFilterEnabled)
+                    {
+                        //Expression<Func<TEntity, bool>> mayHaveTenantFilter = e => ((IMayHaveTenant)e).TenantId == CurrentTenantId;
+                        //expression = expression == null ? mayHaveTenantFilter : CombineExpressions(expression, mayHaveTenantFilter);
+                    }
+                }
+
+                if (expression != null)
+                {
+                    modelBuilder.Entity<TEntity>().HasQueryFilter(expression);
                 }
             }
-        }
-
-        protected virtual Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
-            where TEntity : class
-        {
-            Expression<Func<TEntity, bool>> expression = null;
-
-            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-            {
-                if (IsSoftDeleteFilterEnabled)
-                {
-                    Expression<Func<TEntity, bool>> softDeleteFilter = e => ((ISoftDelete)e).IsDeleted == false;
-                    expression = softDeleteFilter;
-                }
-            }
-
-            //if (typeof(IMayHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            //{
-            //    Expression<Func<TEntity, bool>> mayHaveTenantFilter = e => !IsMayHaveTenantFilterEnabled || ((IMayHaveTenant)e).TenantId == CurrentTenantId;
-            //    expression = expression == null ? mayHaveTenantFilter : CombineExpressions(expression, mayHaveTenantFilter);
-            //}
-
-            //if (typeof(IMustHaveTenant).IsAssignableFrom(typeof(TEntity)))
-            //{
-            //    Expression<Func<TEntity, bool>> mustHaveTenantFilter = e => !IsMustHaveTenantFilterEnabled || ((IMustHaveTenant)e).TenantId == CurrentTenantId;
-            //    expression = expression == null ? mustHaveTenantFilter : CombineExpressions(expression, mustHaveTenantFilter);
-            //}
-
-            return expression;
-        }
-
-        protected virtual bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType) where TEntity : class
-        {
-            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            if (typeof(IMayHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            if (typeof(IMustHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         public override int SaveChanges()
@@ -150,12 +129,12 @@ namespace EasyNet.EntityFrameworkCore
 
         protected virtual void ApplyAbpConceptsForAddedEntity(EntityEntry entry)
         {
-            EntityAuditingHelper.SetCreationAuditProperties(entry.Entity, Session.UserId);
+            EntityAuditingHelper.SetCreationAuditProperties(entry.Entity, EasyNetSession.UserId);
         }
 
         protected virtual void ApplyAbpConceptsForModifiedEntity(EntityEntry entry)
         {
-            EntityAuditingHelper.SetModificationAuditProperties(entry.Entity, Session.UserId);
+            EntityAuditingHelper.SetModificationAuditProperties(entry.Entity, EasyNetSession.UserId);
         }
 
         protected virtual void ApplyAbpConceptsForDeletedEntity(EntityEntry entry)
@@ -163,7 +142,7 @@ namespace EasyNet.EntityFrameworkCore
             if (entry.Entity is ISoftDelete)
             {
                 entry.State = EntityState.Modified;
-                EntityAuditingHelper.SetDeletionAuditProperties(entry.Entity, Session.UserId);
+                EntityAuditingHelper.SetDeletionAuditProperties(entry.Entity, EasyNetSession.UserId);
             }
         }
 

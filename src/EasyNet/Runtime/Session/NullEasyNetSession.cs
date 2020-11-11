@@ -13,6 +13,9 @@
 		/// <inheritdoc/>
 		public override string UserId => string.Empty;
 
+        /// <inheritdoc/>
+		public override string TenantId => string.Empty;
+
 		/// <inheritdoc/>
 		public override string UserName => string.Empty;
 

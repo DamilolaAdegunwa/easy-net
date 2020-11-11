@@ -20,6 +20,12 @@ namespace EasyNet.Runtime.Security
 		public static string UserId { get; set; } = ClaimTypes.NameIdentifier;
 
 		/// <summary>
+		/// Tenant id.
+		/// Default: http://www.easynet.com/identity/claims/tenantId
+		/// </summary>
+		public static string TenantId { get; set; } = "http://www.easynet.com/identity/claims/tenantId";
+
+		/// <summary>
 		/// User role.
 		/// Default: <see cref="ClaimTypes.Role"/>
 		/// </summary>
