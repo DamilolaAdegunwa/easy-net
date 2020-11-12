@@ -9,7 +9,7 @@ namespace EasyNet.Identity.EntityFrameworkCore.Domain
     public class EasyNetSignInManager<TUser> : SignInManager<TUser>, IEasyNetGeneralSignInManager
         where TUser : class
     {
-#if Net461 || NetStandard20
+#if Net461 || NetCore21 || NetCore22
         public EasyNetSignInManager(
             UserManager<TUser> userManager,
             IHttpContextAccessor contextAccessor,
