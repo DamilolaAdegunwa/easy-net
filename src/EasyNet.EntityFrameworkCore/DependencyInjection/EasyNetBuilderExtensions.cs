@@ -63,7 +63,6 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
             {
                 // Try to get DbSet<> type collection
                 if (property.PropertyType.IsGenericType &&
-                    property.PropertyType.IsAbstract &&
                     string.Equals(property.PropertyType.Name, typeof(DbSet<>).Name, StringComparison.CurrentCultureIgnoreCase))
                 {
                     // Try to get entity type
