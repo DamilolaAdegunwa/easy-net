@@ -1,27 +1,35 @@
 ﻿using System;
+using EasyNet.Domain.Uow;
 using EasyNet.Identity.EntityFrameworkCore.Domain.Entities;
+using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 {
 	public class EasyNetIdentityDbContext : EasyNetIdentityDbContext<EasyNetUser<int>, EasyNetRole<int>, int>
 	{
-		public EasyNetIdentityDbContext(DbContextOptions options) : base(options) { }
-	}
+        public EasyNetIdentityDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider, IEasyNetSession session) : base(options, currentUnitOfWorkProvider, session)
+        {
+        }
+    }
 
 	public class EasyNetIdentityDbContext<TUser> : EasyNetIdentityDbContext<TUser, EasyNetRole<int>, int>
 		where TUser : EasyNetUser<int>
 	{
-		public EasyNetIdentityDbContext(DbContextOptions options) : base(options) { }
-	}
+        public EasyNetIdentityDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider, IEasyNetSession session) : base(options, currentUnitOfWorkProvider, session)
+        {
+        }
+    }
 
 	public class EasyNetIdentityDbContext<TUser, TRole, TPrimaryKey> : EasyNetIdentityDbContext<TUser, TRole, EasyNetUserRole<TPrimaryKey>, EasyNetUserClaim<TPrimaryKey>, EasyNetRoleClaim<TPrimaryKey>, EasyNetUserLogin<TPrimaryKey>, EasyNetUserToken<TPrimaryKey>, TPrimaryKey>
 		where TUser : EasyNetUser<TPrimaryKey>
 		where TRole : EasyNetRole<TPrimaryKey>
 		where TPrimaryKey : IEquatable<TPrimaryKey>
 	{
-		public EasyNetIdentityDbContext(DbContextOptions options) : base(options) { }
-	}
+        public EasyNetIdentityDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider, IEasyNetSession session) : base(options, currentUnitOfWorkProvider, session)
+        {
+        }
+    }
 
 	public class EasyNetIdentityDbContext<TUser, TRole, TUserRole, TUserClaim, TRoleClaim, TUserLogin, TUserToken, TPrimaryKey> : EasyNetIdentityUserContext<TUser, TUserClaim, TUserLogin, TUserToken, TPrimaryKey>
 		where TUser : EasyNetUser<TPrimaryKey>
@@ -33,9 +41,11 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 		where TUserToken : EasyNetUserToken<TPrimaryKey>
 		where TPrimaryKey : IEquatable<TPrimaryKey>
 	{
-		public EasyNetIdentityDbContext(DbContextOptions options) : base(options) { }
+        public EasyNetIdentityDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider, IEasyNetSession session) : base(options, currentUnitOfWorkProvider, session)
+        {
+        }
 
-        public virtual DbSet<TUserRole> UserRoles { get; set; }
+		public virtual DbSet<TUserRole> UserRoles { get; set; }
 
         public virtual DbSet<TRole> Roles { get; set; }
 
@@ -80,5 +90,5 @@ namespace EasyNet.Identity.EntityFrameworkCore.DbContext
 				b.ToTable("UserRoles");
 			});
 		}
-	}
+    }
 }

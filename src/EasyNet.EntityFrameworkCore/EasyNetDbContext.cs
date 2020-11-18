@@ -27,7 +27,7 @@ namespace EasyNet.EntityFrameworkCore
 
         private static readonly MethodInfo ConfigureGlobalFiltersMethodInfo = typeof(EasyNetDbContext).GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.Instance | BindingFlags.NonPublic);
 
-        public EasyNetDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider = null, IEasyNetSession session = null) : base(options)
+        public EasyNetDbContext(DbContextOptions options, ICurrentUnitOfWorkProvider currentUnitOfWorkProvider, IEasyNetSession session) : base(options)
         {
             CurrentUnitOfWorkProvider = currentUnitOfWorkProvider;
             EasyNetSession = session ?? NullEasyNetSession.Instance;

@@ -3,6 +3,7 @@ using System.Reflection;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Repositories;
 using EasyNet.Domain.Uow;
+using EasyNet.EntityFrameworkCore.Initialization;
 using EasyNet.EntityFrameworkCore.Repositories;
 using EasyNet.EntityFrameworkCore.Uow;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,22 @@ namespace EasyNet.EntityFrameworkCore.DependencyInjection
                 .AddScoped<IDbContextProvider<TDbContext>, UnitOfWorkDbContextProvider<TDbContext>>();
 
             RegisterRepositories<TDbContext>(builder.Services, asMainOrmTechnology);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Executes database migration command when EasyNet initialization.
+        /// </summary>
+        /// <typeparam name="TDbContext">The context associated with the application.</typeparam>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <returns></returns>
+        public static IEasyNetBuilder AddDatabaseMigrationJob<TDbContext>(this IEasyNetBuilder builder)
+            where TDbContext : EasyNetDbContext
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AddInitializationJob(typeof(DatabaseMigrationJob<TDbContext>));
 
             return builder;
         }

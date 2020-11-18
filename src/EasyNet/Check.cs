@@ -31,7 +31,7 @@ namespace EasyNet
 
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException($"{parameterName} can not be null or empty!", parameterName);
+                throw new ArgumentException($"{parameterName} can not be null or empty.", parameterName);
             }
 
             return value;
@@ -46,7 +46,7 @@ namespace EasyNet
 
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException($"{parameterName} can not be null, empty or white space!", parameterName);
+                throw new ArgumentException($"{parameterName} can not be null, empty or white space.", parameterName);
             }
 
             return value;
@@ -61,7 +61,7 @@ namespace EasyNet
 
             if (value == null || value.Count == 0)
             {
-                throw new ArgumentException(parameterName + " can not be null or empty!", parameterName);
+                throw new ArgumentException(parameterName + " can not be null or empty.", parameterName);
             }
 
             return value;

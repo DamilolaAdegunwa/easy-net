@@ -32,7 +32,7 @@ namespace EasyNet.Tests
 				});
 
 			var serviceProvider = services.BuildServiceProvider();
-			var defaultOptions = serviceProvider.GetService<IOptions<UnitOfWorkDefaultOptions>>().Value;
+			var defaultOptions = serviceProvider.GetRequiredService<IOptions<UnitOfWorkDefaultOptions>>().Value;
 
 			// Assert
 			Assert.Equal(false, defaultOptions.IsTransactional);
@@ -54,7 +54,7 @@ namespace EasyNet.Tests
 				.AddSession<TestSession>();
 
 			var serviceProvider = services.BuildServiceProvider();
-			var session = serviceProvider.GetService<IEasyNetSession>();
+			var session = serviceProvider.GetRequiredService<IEasyNetSession>();
 
 			// Assert
 			AssertSpecifiedServiceTypeAndImplementationType<IEasyNetSession, TestSession>(services, ServiceLifetime.Scoped);

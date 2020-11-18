@@ -1,6 +1,7 @@
 ﻿using System;
 using EasyNet.Domain.Uow;
 using EasyNet.Mvc;
+using EasyNet.Runtime.Initialization;
 using EasyNet.Runtime.Session;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,7 @@ namespace EasyNet.DependencyInjection
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services
+                .AddTransient<IEasyNetInitializer, EasyNetInitializer>()
                 .AddScoped<ICurrentUnitOfWorkProvider, AsyncLocalCurrentUnitOfWorkProvider>()
                 .AddScoped<IUnitOfWorkManager, UnitOfWorkManager>()
                 .AddTransient<IUnitOfWork, NullUnitOfWork>()

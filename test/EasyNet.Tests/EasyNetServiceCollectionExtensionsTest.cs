@@ -22,7 +22,7 @@ namespace EasyNet.Tests
 
 			// Act
 			services.AddEasyNet();
-			var serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
 
 			// Assert
 			AssertSpecifiedServiceTypeAndImplementationType<IHttpContextAccessor, HttpContextAccessor>(services, ServiceLifetime.Singleton);
@@ -33,7 +33,7 @@ namespace EasyNet.Tests
 			AssertSpecifiedServiceTypeAndImplementationType<IPrincipalAccessor, DefaultPrincipalAccessor>(services, ServiceLifetime.Singleton);
 			AssertSpecifiedServiceTypeAndImplementationType<IEasyNetSession, ClaimsEasyNetSession>(services, ServiceLifetime.Scoped);
 
-			var mvcOptions = serviceProvider.GetService<IOptions<MvcOptions>>().Value;
+			var mvcOptions = serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value;
 			Assert.Contains(mvcOptions.Filters, p => ((ServiceFilterAttribute)p).ServiceType == typeof(EasyNetUowActionFilter));
 		}
 	}
