@@ -1,6 +1,5 @@
-﻿using System;
-using System.Transactions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Transactions;
+using EasyNet.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace EasyNet.Domain.Uow
@@ -12,16 +11,16 @@ namespace EasyNet.Domain.Uow
     {
         private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
         private readonly UnitOfWorkDefaultOptions _defaultOptions;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IIocResolver _iocResolver;
 
         public UnitOfWorkManager(
-	        IServiceProvider serviceProvider,
+	        IIocResolver iocResolver,
             ICurrentUnitOfWorkProvider currentUnitOfWorkProvider,
             IOptions<UnitOfWorkDefaultOptions> defaultOptions)
         {
             _currentUnitOfWorkProvider = currentUnitOfWorkProvider;
             _defaultOptions = defaultOptions.Value;
-            _serviceProvider = serviceProvider;
+            _iocResolver = iocResolver;
         }
 
         /// <inheritdoc/>
@@ -53,7 +52,7 @@ namespace EasyNet.Domain.Uow
                     : new InnerUnitOfWorkCompleteHandle();
             }
 
-            var uow = _serviceProvider.GetRequiredService<IUnitOfWork>();
+            var uow = _iocResolver.GetService<IUnitOfWork>();
 
             uow.Completed += (sender, args) =>
             {
