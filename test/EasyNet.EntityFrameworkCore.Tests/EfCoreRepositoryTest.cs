@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Entities;
+using EasyNet.Domain.Repositories;
 using EasyNet.Domain.Uow;
 using EasyNet.EntityFrameworkCore.DependencyInjection;
 using EasyNet.EntityFrameworkCore.Repositories;
@@ -31,7 +32,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
                 .AddEfCore<EfCoreContext>(options =>
                 {
                     options.UseSqlite(CreateInMemoryDatabase());
-                }, true);
+                });
 
             _serviceProvider = services.BuildServiceProvider();
 
@@ -498,7 +499,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
 
             var creationAudited1 = new TestCreationAudited();
             creationAuditedRepo.Insert(creationAudited1);
-
+            
             // Assert
             Assert.Equal(0, user5.Id);
             Assert.Equal(4, userRepo.GetAll().AsNoTracking().Count());
@@ -1204,14 +1205,14 @@ namespace EasyNet.EntityFrameworkCore.Tests
             return _serviceProvider.GetService<IUnitOfWorkManager>().Begin();
         }
 
-        public IEfCoreRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity<int>
+        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity<int>
         {
-            return _serviceProvider.GetService<IEfCoreRepository<TEntity>>();
+            return _serviceProvider.GetService<IRepository<TEntity>>();
         }
 
-        public IEfCoreRepository<TEntity, TPrimaryKey> GetRepository<TEntity, TPrimaryKey>() where TEntity : class, IEntity<TPrimaryKey>
+        public IRepository<TEntity, TPrimaryKey> GetRepository<TEntity, TPrimaryKey>() where TEntity : class, IEntity<TPrimaryKey>
         {
-            return _serviceProvider.GetService<IEfCoreRepository<TEntity, TPrimaryKey>>();
+            return _serviceProvider.GetService<IRepository<TEntity, TPrimaryKey>>();
         }
     }
 

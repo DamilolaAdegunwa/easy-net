@@ -35,18 +35,18 @@ namespace EasyNet.Identity.EntityFrameworkCore.Tests
                 .AddEfCore<IdentityContext>(options =>
                 {
                     options.UseSqlite("TestConnectionString");
-                }, true)
+                })
                 .AddIdentityCore<IdentityContext, User>();
 
             // Assert
             AssertSpecifiedServiceTypeAndImplementationType<IdentityContext, IdentityContext>(services, ServiceLifetime.Scoped);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<User>, EfCoreRepositoryBase<IdentityContext, User>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<Role>, EfCoreRepositoryBase<IdentityContext, Role>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserClaim<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserClaim<int>>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetRoleClaim<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetRoleClaim<int>>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserRole<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserRole<int>>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserLogin<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserLogin<int>>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserToken<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserToken<int>>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<User>, EfCoreRepositoryBase<IdentityContext, User>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<Role>, EfCoreRepositoryBase<IdentityContext, Role>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<EasyNetUserClaim<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserClaim<int>>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<EasyNetRoleClaim<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetRoleClaim<int>>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<EasyNetUserRole<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserRole<int>>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<EasyNetUserLogin<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserLogin<int>>>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IRepository<EasyNetUserToken<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserToken<int>>>(services, ServiceLifetime.Transient);
             AssertSpecifiedServiceTypeAndImplementationType<SignInManager<User>, EasyNetSignInManager<User>>(services, ServiceLifetime.Scoped);
             AssertSpecifiedServiceTypeAndImplementationType<IEasyNetGeneralSignInManager, EasyNetSignInManager<User>>(services, ServiceLifetime.Scoped);
             AssertSpecifiedServiceTypeAndImplementationType<UserManager<User>, EasyNetUserManager<User>>(services, ServiceLifetime.Scoped, 2);
