@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Transactions;
+using EasyNet.DependencyInjection;
 using EasyNet.Domain.Uow;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -14,6 +15,7 @@ namespace EasyNet.Tests.Domain
         public UnitOfWorkManagerTest()
         {
             var services = new ServiceCollection();
+            services.AddScoped<IIocResolver, AspNetCoreIocResolver>();
             services.AddTransient<IUnitOfWork, NullUnitOfWork>();
             services.AddScoped<ICurrentUnitOfWorkProvider, AsyncLocalCurrentUnitOfWorkProvider>();
             services.AddScoped<IUnitOfWorkManager, UnitOfWorkManager>();
@@ -31,6 +33,10 @@ namespace EasyNet.Tests.Domain
             // Arrange
             var currentUnitOfWorkProvider = _serviceProvider.GetService<ICurrentUnitOfWorkProvider>();
             var unitOfWorkManager = _serviceProvider.GetService<IUnitOfWorkManager>();
+
+            _serviceProvider.GetService<IIocResolver>();
+            _serviceProvider.GetService<IIocResolver>();
+            _serviceProvider.GetService<IIocResolver>();
 
             // Assert
             Assert.Null(currentUnitOfWorkProvider.Current);

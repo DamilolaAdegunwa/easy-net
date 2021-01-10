@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EasyNet.DependencyInjection;
 using EasyNet.Domain.Uow;
 using EasyNet.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace EasyNet.EntityFrameworkCore.Uow
@@ -14,16 +14,16 @@ namespace EasyNet.EntityFrameworkCore.Uow
     /// </summary>
     public class EfCoreUnitOfWork : UnitOfWorkBase
     {
-        protected IServiceProvider ServiceProvider { get; }
+        protected IIocResolver IocResolver { get; }
 
         protected DbContext ActiveDbContext { get; private set; }
 
         protected IDbContextTransaction ActiveTransaction { get; private set; }
 
-        public EfCoreUnitOfWork(IServiceProvider serviceProvider, IOptions<UnitOfWorkDefaultOptions> defaultOptions)
+        public EfCoreUnitOfWork(IIocResolver iocResolver, IOptions<UnitOfWorkDefaultOptions> defaultOptions)
             : base(defaultOptions)
         {
-            ServiceProvider = serviceProvider;
+            IocResolver = iocResolver;
         }
 
         public override void SaveChanges()
@@ -79,7 +79,7 @@ namespace EasyNet.EntityFrameworkCore.Uow
         {
             if (ActiveDbContext == null)
             {
-                ActiveDbContext = ServiceProvider.GetRequiredService<TDbContext>();
+                ActiveDbContext = IocResolver.GetService<TDbContext>();
 
                 if (Options.IsTransactional == true)
                 {

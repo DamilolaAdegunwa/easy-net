@@ -70,5 +70,21 @@ namespace EasyNet.DependencyInjection
 
             return builder;
         }
+
+        /// <summary>
+        /// Add a new <see cref="IIocResolver"/> implementation.
+        /// </summary>
+        /// <typeparam name="TIocResolver"></typeparam>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <returns>An <see cref="IEasyNetBuilder"/> that can be used to further configure the EasyNet services.</returns>
+        public static IEasyNetBuilder AddIocResolver<TIocResolver>(this IEasyNetBuilder builder)
+            where TIocResolver : IIocResolver
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Services.Replace(new ServiceDescriptor(typeof(IIocResolver), typeof(TIocResolver), ServiceLifetime.Scoped));
+
+            return builder;
+        }
     }
 }

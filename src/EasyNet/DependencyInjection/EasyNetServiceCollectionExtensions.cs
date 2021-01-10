@@ -46,6 +46,7 @@ namespace EasyNet.DependencyInjection
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services
+                .AddScoped<IIocResolver, AspNetCoreIocResolver>()
                 .AddTransient<IEasyNetInitializer, EasyNetInitializer>()
                 .AddScoped<ICurrentUnitOfWorkProvider, AsyncLocalCurrentUnitOfWorkProvider>()
                 .AddScoped<IUnitOfWorkManager, UnitOfWorkManager>()
