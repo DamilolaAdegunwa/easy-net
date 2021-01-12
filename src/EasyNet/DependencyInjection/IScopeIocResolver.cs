@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EasyNet.DependencyInjection
 {
-    public interface IIocResolver
+    public interface IScopeIocResolver : IDisposable
     {
         T GetService<T>(bool required = true);
 

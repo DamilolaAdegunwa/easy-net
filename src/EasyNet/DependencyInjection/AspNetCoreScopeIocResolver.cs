@@ -3,13 +3,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyNet.DependencyInjection
 {
-    public class AspNetCoreIocResolver : IIocResolver
+    internal class AspNetCoreScopeIocResolver : IScopeIocResolver
     {
-        protected readonly IServiceProvider ServiceProvider;
+        protected readonly IServiceScope ServiceScope;
 
-        public AspNetCoreIocResolver(IServiceProvider serviceProvider)
+        protected IServiceProvider ServiceProvider => ServiceScope?.ServiceProvider;
+
+        internal AspNetCoreScopeIocResolver(IServiceScope serviceScope)
         {
-            ServiceProvider = serviceProvider;
+            ServiceScope = serviceScope;
         }
 
         public T GetService<T>(bool required = true)
@@ -39,6 +41,12 @@ namespace EasyNet.DependencyInjection
         public IScopeIocResolver CreateScope()
         {
             return new AspNetCoreScopeIocResolver(ServiceProvider.CreateScope());
+        }
+
+
+        public void Dispose()
+        {
+            ServiceScope?.Dispose();
         }
     }
 }
