@@ -25,6 +25,7 @@ namespace EasyNet.Tests
             var serviceProvider = services.BuildServiceProvider();
 
 			// Assert
+            AssertSpecifiedServiceTypeAndImplementationType<IIocResolver, AspNetCoreIocResolver>(services, ServiceLifetime.Scoped);
 			AssertSpecifiedServiceTypeAndImplementationType<IHttpContextAccessor, HttpContextAccessor>(services, ServiceLifetime.Singleton);
 			AssertSpecifiedServiceTypeAndImplementationType<EasyNetUowActionFilter, EasyNetUowActionFilter>(services, ServiceLifetime.Transient);
 			AssertSpecifiedServiceTypeAndImplementationType<ICurrentUnitOfWorkProvider, AsyncLocalCurrentUnitOfWorkProvider>(services, ServiceLifetime.Scoped);

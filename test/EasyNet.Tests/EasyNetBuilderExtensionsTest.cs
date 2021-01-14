@@ -62,5 +62,43 @@ namespace EasyNet.Tests
 			Assert.Equal("Test", session.UserName);
 			Assert.Equal("Admin", session.Role);
 		}
+
+        [Fact]
+        public void TestAddIocResolver()
+        {
+            // Arrange
+            var services = new ServiceCollection();
+            services.AddSingleton(CommonTest.GetHostingEnvironment());
+
+            // Act
+            services
+                .AddEasyNet()
+                .AddIocResolver<TestIocResolver>();
+
+            var serviceProvider = services.BuildServiceProvider();
+            var iocResolver = serviceProvider.GetRequiredService<IIocResolver>();
+
+            // Assert
+            AssertSpecifiedServiceTypeAndImplementationType<IIocResolver, TestIocResolver>(services, ServiceLifetime.Scoped);
+            Assert.Equal(typeof(TestIocResolver), iocResolver.GetType());
+        }
 	}
+
+    public class TestIocResolver : IIocResolver
+    {
+        public T GetService<T>(bool required = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object GetService(Type serviceType, bool required = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IScopeIocResolver CreateScope()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
