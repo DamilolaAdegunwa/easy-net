@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
+using EasyNet.Domain.Repositories;
 using EasyNet.EntityFrameworkCore.Uow;
 using Microsoft.EntityFrameworkCore;
 

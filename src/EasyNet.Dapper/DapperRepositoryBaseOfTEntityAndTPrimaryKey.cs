@@ -2,8 +2,8 @@
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using EasyNet.Data;
 using EasyNet.Domain.Entities;
+using EasyNet.Domain.Uow;
 
 namespace EasyNet.Dapper
 {
