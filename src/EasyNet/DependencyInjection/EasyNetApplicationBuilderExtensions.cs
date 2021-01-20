@@ -11,8 +11,11 @@ namespace EasyNet.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             // Init EasyNet
-            builder.ApplicationServices.GetRequiredService<IEasyNetInitializer>().Init();
-            
+            using (var scope = builder.ApplicationServices.CreateScope())
+            {
+                scope.ServiceProvider.GetRequiredService<IEasyNetInitializer>().Init();
+            }
+
             return builder;
         }
     }

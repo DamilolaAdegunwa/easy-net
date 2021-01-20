@@ -33,9 +33,15 @@ namespace EasyNet.Tests
 			AssertSpecifiedServiceTypeAndImplementationType<IUnitOfWork, NullUnitOfWork>(services, ServiceLifetime.Transient);
 			AssertSpecifiedServiceTypeAndImplementationType<IPrincipalAccessor, DefaultPrincipalAccessor>(services, ServiceLifetime.Singleton);
 			AssertSpecifiedServiceTypeAndImplementationType<IEasyNetSession, ClaimsEasyNetSession>(services, ServiceLifetime.Scoped);
+            AssertSpecifiedServiceTypeAndImplementationType<EasyNetUowActionFilter, EasyNetUowActionFilter>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<EasyNetExceptionFilter, EasyNetExceptionFilter>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<EasyNetResultFilter, EasyNetResultFilter>(services, ServiceLifetime.Transient);
+            AssertSpecifiedServiceTypeAndImplementationType<IEasyNetExceptionHandler, EasyNetExceptionHandler>(services, ServiceLifetime.Transient);
 
 			var mvcOptions = serviceProvider.GetRequiredService<IOptions<MvcOptions>>().Value;
 			Assert.Contains(mvcOptions.Filters, p => ((ServiceFilterAttribute)p).ServiceType == typeof(EasyNetUowActionFilter));
+            Assert.Contains(mvcOptions.Filters, p => ((ServiceFilterAttribute)p).ServiceType == typeof(EasyNetExceptionFilter));
+            Assert.Contains(mvcOptions.Filters, p => ((ServiceFilterAttribute)p).ServiceType == typeof(EasyNetResultFilter));
 		}
 	}
 }

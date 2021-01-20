@@ -1,5 +1,6 @@
 ﻿using System;
 using EasyNet.Domain.Uow;
+using EasyNet.Mvc;
 using EasyNet.Runtime.Initialization;
 using EasyNet.Runtime.Session;
 using Microsoft.Extensions.DependencyInjection;
@@ -83,6 +84,22 @@ namespace EasyNet.DependencyInjection
             Check.NotNull(builder, nameof(builder));
 
             builder.Services.Replace(new ServiceDescriptor(typeof(IIocResolver), typeof(TIocResolver), ServiceLifetime.Scoped));
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Add a new <see cref="IEasyNetExceptionHandler"/> implementation.
+        /// </summary>
+        /// <typeparam name="TExceptionHandler"></typeparam>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <returns>An <see cref="IEasyNetBuilder"/> that can be used to further configure the EasyNet services.</returns>
+        public static IEasyNetBuilder AddExceptionHandler<TExceptionHandler>(this IEasyNetBuilder builder)
+            where TExceptionHandler : IEasyNetExceptionHandler
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            builder.Services.Replace(new ServiceDescriptor(typeof(IEasyNetExceptionHandler), typeof(TExceptionHandler), ServiceLifetime.Transient));
 
             return builder;
         }

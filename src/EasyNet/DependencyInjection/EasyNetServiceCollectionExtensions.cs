@@ -54,9 +54,14 @@ namespace EasyNet.DependencyInjection
                 .AddSingleton<IPrincipalAccessor, DefaultPrincipalAccessor>()
                 .AddScoped<IEasyNetSession, ClaimsEasyNetSession>()
                 .AddTransient<EasyNetUowActionFilter>()
+                .AddTransient<EasyNetResultFilter>()
+                .AddTransient<EasyNetExceptionFilter>()
+                .AddTransient<IEasyNetExceptionHandler, EasyNetExceptionHandler>()
                 .Configure<MvcOptions>(mvcOptions =>
                 {
                     mvcOptions.Filters.AddService<EasyNetUowActionFilter>();
+                    mvcOptions.Filters.AddService<EasyNetResultFilter>();
+                    mvcOptions.Filters.AddService<EasyNetExceptionFilter>();
                 });
 
             return new EasyNetBuilder(services);
