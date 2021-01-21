@@ -5,6 +5,7 @@ using EasyNet.Identity.EntityFrameworkCore.Domain;
 using EasyNet.Identity.EntityFrameworkCore.Domain.Entities;
 using EasyNet.Identity.EntityFrameworkCore.Initialization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -16,12 +17,59 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
     /// </summary>
     public static class EasyNetBuilderExtensions
     {
-        public static IEasyNetBuilder AddIdentityCore<TDbContext, TUser>(
+        public static IEasyNetBuilder AddIdentityCore<TUser, TDbContext>(
             this IEasyNetBuilder builder,
             Action<IdentityOptions> identitySetupAction = null,
-            Action<AuthenticationOptions> authenticationSetupAction = null)
+            Action<AuthenticationOptions> authenticationSetupAction = null,
+            Action<IdentityCookiesBuilder> identityCookiesSetupAction = null)
+            where TUser : EasyNetUser<int>
             where TDbContext : EasyNetDbContext
-            where TUser : class
+        {
+            return builder.AddIdentityCore<TUser, TDbContext, int>(identitySetupAction, authenticationSetupAction, identityCookiesSetupAction);
+        }
+
+        public static IEasyNetBuilder AddIdentityCore<TUser, TDbContext, TPrimaryKey>(
+            this IEasyNetBuilder builder,
+            Action<IdentityOptions> identitySetupAction = null,
+            Action<AuthenticationOptions> authenticationSetupAction = null,
+            Action<IdentityCookiesBuilder> identityCookiesSetupAction = null)
+            where TUser : EasyNetUser<TPrimaryKey>
+            where TDbContext : EasyNetDbContext
+            where TPrimaryKey : IEquatable<TPrimaryKey>
+        {
+            return builder.AddIdentityCore<TUser, EasyNetRole<TPrimaryKey>, TDbContext, TPrimaryKey>(identitySetupAction, authenticationSetupAction, identityCookiesSetupAction);
+        }
+
+        public static IEasyNetBuilder AddIdentityCore<TUser, TRole, TDbContext, TPrimaryKey>(
+            this IEasyNetBuilder builder,
+            Action<IdentityOptions> identitySetupAction = null,
+            Action<AuthenticationOptions> authenticationSetupAction = null,
+            Action<IdentityCookiesBuilder> identityCookiesSetupAction = null)
+            where TUser : EasyNetUser<TPrimaryKey>
+            where TRole : EasyNetRole<TPrimaryKey>
+            where TDbContext : EasyNetDbContext
+            where TPrimaryKey : IEquatable<TPrimaryKey>
+        {
+            return builder.AddIdentityCore<TUser, TRole, TDbContext, TPrimaryKey, EasyNetUserClaim<TPrimaryKey>, EasyNetUserRole<TPrimaryKey>, EasyNetUserLogin<TPrimaryKey>, EasyNetUserToken<TPrimaryKey>, EasyNetRoleClaim<TPrimaryKey>>(
+                identitySetupAction,
+                authenticationSetupAction,
+                identityCookiesSetupAction);
+        }
+
+        public static IEasyNetBuilder AddIdentityCore<TUser, TRole, TDbContext, TPrimaryKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>(
+            this IEasyNetBuilder builder,
+            Action<IdentityOptions> identitySetupAction = null,
+            Action<AuthenticationOptions> authenticationSetupAction = null,
+            Action<IdentityCookiesBuilder> identityCookiesSetupAction = null)
+            where TUser : EasyNetUser<TPrimaryKey>
+            where TRole : EasyNetRole<TPrimaryKey>
+            where TDbContext : Microsoft.EntityFrameworkCore.DbContext
+            where TPrimaryKey : IEquatable<TPrimaryKey>
+            where TUserClaim : EasyNetUserClaim<TPrimaryKey>, new()
+            where TUserRole : EasyNetUserRole<TPrimaryKey>, new()
+            where TUserLogin : EasyNetUserLogin<TPrimaryKey>, new()
+            where TUserToken : EasyNetUserToken<TPrimaryKey>, new()
+            where TRoleClaim : EasyNetRoleClaim<TPrimaryKey>, new()
         {
             Check.NotNull(builder, nameof(builder));
 
@@ -31,46 +79,25 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
                     o.DefaultScheme = IdentityConstants.ApplicationScheme;
                     o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
                     authenticationSetupAction?.Invoke(o);
-                });
+                })
+                .AddIdentityCookies(identityCookiesSetupAction);
 
             builder.Services
                 .AddIdentityCore<TUser>(o =>
                 {
                     o.Stores.MaxLengthForKeys = 128;
                     identitySetupAction?.Invoke(o);
-                })
-                .AddUserManager<EasyNetUserManager<TUser>>()
-                .AddSignInManager<EasyNetSignInManager<TUser>>()
-                .AddEntityFrameworkStores<TDbContext>();
-
-            builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
-
-            builder.Services.Configure<DefaultAdminUserOptions>(o => { });
-
-            return builder;
-        }
-
-        public static IEasyNetBuilder AddIdentity<TUser>(
-            this IEasyNetBuilder builder,
-            Action<IdentityBuilder> identitySetupAction,
-            Action<AuthenticationOptions> authenticationSetupAction = null) where TUser : class
-        {
-            Check.NotNull(builder, nameof(builder));
-            Check.NotNull(identitySetupAction, nameof(identitySetupAction));
-
-            builder.Services
-                .AddAuthentication(o =>
-                {
-                    o.DefaultScheme = IdentityConstants.ApplicationScheme;
-                    o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-                    authenticationSetupAction?.Invoke(o);
                 });
 
-            builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
+            var identityBuilder = new IdentityBuilder(typeof(TUser), typeof(TRole), builder.Services);
+            identityBuilder.AddUserManager<EasyNetUserManager<TUser, TPrimaryKey>>()
+                .AddSignInManager<EasyNetSignInManager<TUser, TPrimaryKey>>()
+                .AddUserStore<EasyNetUserStore<TUser, TRole, TDbContext, TPrimaryKey, TUserClaim, TUserRole, TUserLogin, TUserToken, TRoleClaim>>()
+                .AddRoleStore<EasyNetRoleStore<TRole, TDbContext, TPrimaryKey, TUserRole, TRoleClaim>>();
+
+            builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser, TPrimaryKey>>();
 
             builder.Services.Configure<DefaultAdminUserOptions>(o => { });
-
-            identitySetupAction(new IdentityBuilder(typeof(TUser), builder.Services));
 
             return builder;
         }
