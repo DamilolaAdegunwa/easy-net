@@ -56,12 +56,14 @@ namespace EasyNet.DependencyInjection
                 .AddTransient<EasyNetUowActionFilter>()
                 .AddTransient<EasyNetResultFilter>()
                 .AddTransient<EasyNetExceptionFilter>()
+                .AddTransient<EasyNetPageFilter>()
                 .AddTransient<IEasyNetExceptionHandler, EasyNetExceptionHandler>()
                 .Configure<MvcOptions>(mvcOptions =>
                 {
                     mvcOptions.Filters.AddService<EasyNetUowActionFilter>();
                     mvcOptions.Filters.AddService<EasyNetResultFilter>();
                     mvcOptions.Filters.AddService<EasyNetExceptionFilter>();
+                    mvcOptions.Filters.AddService<EasyNetPageFilter>();
                 });
 
             return new EasyNetBuilder(services);

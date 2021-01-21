@@ -22,7 +22,7 @@ namespace EasyNet.Tests.Mvc
 
             var uowMock = new Mock<IUnitOfWorkManager>();
             uowMock
-                .Setup(f => f.Begin())
+                .Setup(f => f.Begin(It.IsAny<UnitOfWorkOptions>()))
                 .Returns(() => completeHandleMock.Object);
 
             var optionsMock = new Mock<IOptions<EasyNetOptions>>();
@@ -48,7 +48,7 @@ namespace EasyNet.Tests.Mvc
 
             // Assert
             var times = !isControllerAction || !unitOfWorkAutoStart ? Times.Never() : Times.Once();
-            uowMock.Verify(f => f.Begin(), times);
+            uowMock.Verify(f => f.Begin(It.IsAny<UnitOfWorkOptions>()), times);
             completeHandleMock.Verify(f => f.CompleteAsync(), times);
         }
     }

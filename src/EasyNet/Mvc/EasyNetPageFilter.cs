@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using EasyNet.Domain.Uow;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -6,27 +7,25 @@ using Microsoft.Extensions.Options;
 
 namespace EasyNet.Mvc
 {
-    /// <summary>
-    /// A filter implementation which delegates to the controller for starting a unit of work.
-    /// </summary>
-    public class EasyNetUowActionFilter : IAsyncActionFilter
+    public class EasyNetPageFilter : IAsyncPageFilter
     {
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly EasyNetOptions _options;
 
-        public EasyNetUowActionFilter(IUnitOfWorkManager unitOfWorkManager, IOptions<EasyNetOptions> options)
+        public EasyNetPageFilter(IUnitOfWorkManager unitOfWorkManager, IOptions<EasyNetOptions> options)
         {
             _unitOfWorkManager = unitOfWorkManager;
             _options = options.Value;
         }
 
-        /// <inheritdoc />
-        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public Task OnPageHandlerSelectionAsync(PageHandlerSelectedContext context)
         {
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(next, nameof(next));
+            return Task.CompletedTask;
+        }
 
-            if (!context.ActionDescriptor.IsControllerAction())
+        public async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
+        {
+            if (context.HandlerMethod == null)
             {
                 await next();
                 return;
@@ -39,8 +38,7 @@ namespace EasyNet.Mvc
             }
 
             // Try to get UnitOfWorkAttribute from attribute of method.
-            var actionMethodInfo = context.ActionDescriptor.GetMethodInfo();
-            var uowAttr = actionMethodInfo?.GetCustomAttribute(typeof(UnitOfWorkAttribute));
+            var uowAttr = context.HandlerMethod.MethodInfo.GetCustomAttribute(typeof(UnitOfWorkAttribute));
 
             // Set unit of work options
             var unitOfWorkOptions = uowAttr == null ? new UnitOfWorkOptions() : UnitOfWorkOptions.Create((UnitOfWorkAttribute)uowAttr);
