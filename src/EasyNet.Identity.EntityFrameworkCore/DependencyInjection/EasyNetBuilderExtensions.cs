@@ -2,6 +2,8 @@
 using EasyNet.DependencyInjection;
 using EasyNet.EntityFrameworkCore;
 using EasyNet.Identity.EntityFrameworkCore.Domain;
+using EasyNet.Identity.EntityFrameworkCore.Domain.Entities;
+using EasyNet.Identity.EntityFrameworkCore.Initialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +45,8 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
 
             builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
 
+            builder.Services.Configure<DefaultAdminUserOptions>(o => { });
+
             return builder;
         }
 
@@ -64,7 +68,59 @@ namespace EasyNet.Identity.EntityFrameworkCore.DependencyInjection
 
             builder.Services.TryAddScoped<IEasyNetGeneralSignInManager, EasyNetSignInManager<TUser>>();
 
+            builder.Services.Configure<DefaultAdminUserOptions>(o => { });
+
             identitySetupAction(new IdentityBuilder(typeof(TUser), builder.Services));
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Configure <see cref="DefaultAdminUserOptions"/>
+        /// </summary>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <param name="setupAction">An <see cref="Action{DefaultAdminUserOptions}"/> to configure the provided <see cref="DefaultAdminUserOptions"/>.</param>
+        /// <returns>An <see cref="IEasyNetBuilder"/> that can be used to further configure the EasyNet services.</returns>
+        public static IEasyNetBuilder ConfigureDefaultAdminUserOptions(this IEasyNetBuilder builder, Action<DefaultAdminUserOptions> setupAction)
+        {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(setupAction, nameof(setupAction));
+
+            builder.Services.Configure(setupAction);
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Add a default admin when EasyNet initialization.
+        /// </summary>
+        /// <typeparam name="TUser">The user associated with the application.</typeparam>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <returns></returns>
+        public static IEasyNetBuilder AddAdminInitializationJob<TUser>(this IEasyNetBuilder builder)
+            where TUser : EasyNetUser<int>, new()
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AddInitializationJob(typeof(AdminInitializationJob<TUser, int>));
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Add a default admin when EasyNet initialization.
+        /// </summary>
+        /// <typeparam name="TUser">The user associated with the application.</typeparam>
+        /// <typeparam name="TPrimaryKey">The primary key of the user associated with the application.</typeparam>
+        /// <param name="builder">The <see cref="IEasyNetBuilder"/>.</param>
+        /// <returns></returns>
+        public static IEasyNetBuilder AddAdminInitializationJob<TUser, TPrimaryKey>(this IEasyNetBuilder builder)
+            where TUser : EasyNetUser<TPrimaryKey>, new()
+            where TPrimaryKey : IEquatable<TPrimaryKey>
+        {
+            Check.NotNull(builder, nameof(builder));
+
+            builder.AddInitializationJob(typeof(AdminInitializationJob<TUser, TPrimaryKey>));
 
             return builder;
         }
