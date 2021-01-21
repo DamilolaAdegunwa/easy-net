@@ -1,7 +1,6 @@
-﻿using System;
+﻿using System.Reflection;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Uow;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace EasyNet.Runtime.Initialization
@@ -27,7 +26,12 @@ namespace EasyNet.Runtime.Initialization
             {
                 using (var scope = IocResolver.CreateScope())
                 {
-                    using (var uow = scope.GetService<IUnitOfWorkManager>().Begin())
+                    var uowAttr = jobType.GetCustomAttribute(typeof(UnitOfWorkAttribute));
+                    var uowOptions = uowAttr == null
+                        ? new UnitOfWorkOptions()
+                        : UnitOfWorkOptions.Create((UnitOfWorkAttribute)uowAttr);
+
+                    using (var uow = scope.GetService<IUnitOfWorkManager>().Begin(uowOptions))
                     {
                         if (scope.GetService(jobType) is IEasyNetInitializationJob job)
                         {

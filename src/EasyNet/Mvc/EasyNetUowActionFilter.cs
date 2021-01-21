@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Reflection;
+using System.Threading.Tasks;
 using EasyNet.Domain.Uow;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
@@ -37,7 +38,14 @@ namespace EasyNet.Mvc
                 return;
             }
 
-            using (var uow = _unitOfWorkManager.Begin())
+            // Try to get UnitOfWorkAttribute from attribute of method.
+            var actionMethodInfo = context.ActionDescriptor.GetMethodInfo();
+            var uowAttr = actionMethodInfo.GetCustomAttribute(typeof(UnitOfWorkAttribute));
+
+            // Set unit of work options
+            var unitOfWorkOptions = uowAttr == null ? new UnitOfWorkOptions() : UnitOfWorkOptions.Create((UnitOfWorkAttribute)uowAttr);
+
+            using (var uow = _unitOfWorkManager.Begin(unitOfWorkOptions))
             {
                 var result = await next();
                 if (result.Exception == null || result.ExceptionHandled)
