@@ -14,9 +14,9 @@ namespace EasyNet.Identity.EntityFrameworkCore.UI.Areas.Identity.Pages.Account
     {
         private readonly IEasyNetGeneralSignInManager _signInManager;
         private readonly ILogger<LoginModel> _logger;
-        private readonly EasyNetIdentityDefaultUIOptions _options;
+        private readonly EasyNetIdentityDefaultUiOptions _options;
 
-        public LoginModel(IEasyNetGeneralSignInManager signInManager, IOptions<EasyNetIdentityDefaultUIOptions> options, ILogger<LoginModel> logger)
+        public LoginModel(IEasyNetGeneralSignInManager signInManager, IOptions<EasyNetIdentityDefaultUiOptions> options, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _logger = logger;
@@ -34,7 +34,7 @@ namespace EasyNet.Identity.EntityFrameworkCore.UI.Areas.Identity.Pages.Account
         {
             if (returnUrl == null)
             {
-                returnUrl = _options.RedirectPathAfterLogin;
+                returnUrl = string.IsNullOrEmpty(_options.RedirectPathAfterLogin) ? "/" : _options.RedirectPathAfterLogin;
             }
 
             if (ModelState.IsValid)
@@ -45,11 +45,6 @@ namespace EasyNet.Identity.EntityFrameworkCore.UI.Areas.Identity.Pages.Account
                     _logger.LogInformation("User logged in.");
 
                     return Redirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {
