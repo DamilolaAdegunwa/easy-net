@@ -36,7 +36,7 @@ namespace EasyNet.Identity.EntityFrameworkCore.Tests
                 {
                     options.UseSqlite("TestConnectionString");
                 }, true)
-                .AddIdentityCore<IdentityContext, User>();
+                .AddIdentityCore<User, IdentityContext>();
 
             // Assert
             AssertSpecifiedServiceTypeAndImplementationType<IdentityContext, IdentityContext>(services, ServiceLifetime.Scoped);
@@ -47,9 +47,9 @@ namespace EasyNet.Identity.EntityFrameworkCore.Tests
             AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserRole<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserRole<int>>>(services, ServiceLifetime.Transient);
             AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserLogin<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserLogin<int>>>(services, ServiceLifetime.Transient);
             AssertSpecifiedServiceTypeAndImplementationType<IEfCoreRepository<EasyNetUserToken<int>>, EfCoreRepositoryBase<IdentityContext, EasyNetUserToken<int>>>(services, ServiceLifetime.Transient);
-            AssertSpecifiedServiceTypeAndImplementationType<SignInManager<User>, EasyNetSignInManager<User>>(services, ServiceLifetime.Scoped);
-            AssertSpecifiedServiceTypeAndImplementationType<IEasyNetGeneralSignInManager, EasyNetSignInManager<User>>(services, ServiceLifetime.Scoped);
-            AssertSpecifiedServiceTypeAndImplementationType<UserManager<User>, EasyNetUserManager<User>>(services, ServiceLifetime.Scoped, 2);
+            AssertSpecifiedServiceTypeAndImplementationType<SignInManager<User>, EasyNetSignInManager<User, int>>(services, ServiceLifetime.Scoped);
+            AssertSpecifiedServiceTypeAndImplementationType<IEasyNetGeneralSignInManager, EasyNetSignInManager<User, int>>(services, ServiceLifetime.Scoped);
+            AssertSpecifiedServiceTypeAndImplementationType<UserManager<User>, EasyNetUserManager<User, int>>(services, ServiceLifetime.Scoped, 2);
         }
     }
 }
