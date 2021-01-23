@@ -14,9 +14,9 @@ namespace EasyNet.ApplicationService
         /// <summary>
         /// Get a entity as dto.
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="id">The primary key of the entity</param>
         /// <returns></returns>
-        Task<TEntityDto> GetAsync(IEntityDto<TPrimaryKey> input);
+        Task<TEntityDto> GetAsync(TPrimaryKey id);
 
         /// <summary>
         /// Get all entities as dto list.

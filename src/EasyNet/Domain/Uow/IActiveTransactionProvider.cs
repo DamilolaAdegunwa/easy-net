@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace EasyNet.Data
+namespace EasyNet.Domain.Uow
 {
     /// <summary>
     /// An interface for getting active connection and transaction.

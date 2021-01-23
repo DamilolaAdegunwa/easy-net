@@ -37,8 +37,8 @@ namespace EasyNet.ApplicationService
         /// <summary>
         /// Delete a entity.
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        Task DeleteAsync(IEntityDto<TPrimaryKey> input);
+        Task DeleteAsync(TPrimaryKey id);
     }
 }
