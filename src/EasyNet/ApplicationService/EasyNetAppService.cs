@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using EasyNet.DependencyInjection;
+using EasyNet.Runtime.Session;
 
 namespace EasyNet.ApplicationService
 {
-    public class EasyNetAppService : IEasyNetAppService
+    public abstract class EasyNetAppService
     {
 
-        public EasyNetAppService(IIocResolver iocResolver)
+        protected EasyNetAppService(IIocResolver iocResolver)
         {
             IocResolver = iocResolver;
         }
 
         protected IIocResolver IocResolver { get; }
 
+        protected IEasyNetSession EasyNetSession => _asyNetSession ?? (_asyNetSession = IocResolver.GetService<IEasyNetSession>());
+        private IEasyNetSession _asyNetSession;
+
         protected IMapper ObjectMapper => _objectMapper ?? (_objectMapper = IocResolver.GetService<IMapper>());
-        private IMapper _objectMapper = null;
+        private IMapper _objectMapper;
     }
 }

@@ -21,7 +21,7 @@ namespace EasyNet.ApplicationService
     /// Derive your application services from this class.
     /// </summary>
 
-    public abstract class EasyNetQueryAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetAppService, IEasyNetQueryAppService<TEntityDto, TPrimaryKey, TGetAllInput>
+    public abstract class EasyNetQueryAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetAppService
         where TEntity : class, IEntity<TPrimaryKey>
         where TEntityDto : IEntityDto<TPrimaryKey>
     {
@@ -32,7 +32,11 @@ namespace EasyNet.ApplicationService
             Repository = repository;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Get
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<TEntityDto> GetAsync(TPrimaryKey id)
         {
             var entity = await Repository.GetAsync(id);
@@ -40,7 +44,11 @@ namespace EasyNet.ApplicationService
             return MapToEntityDto(entity);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Get all
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public async Task<List<TEntityDto>> GetAllAsync(TGetAllInput input)
         {
             var entities = await Repository.GetAllListAsync();

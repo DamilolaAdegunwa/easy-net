@@ -28,7 +28,7 @@ namespace EasyNet.ApplicationService
         }
     }
 
-    public abstract class EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetQueryAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput>, IEasyNetCrudAppService<TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>
+    public abstract class EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetQueryAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput>
         where TEntity : class, IEntity<TPrimaryKey>
         where TEntityDto : IEntityDto<TPrimaryKey>
         where TUpdateInput : IEntityDto<TPrimaryKey>
@@ -51,6 +51,11 @@ namespace EasyNet.ApplicationService
             return MapToEntityDto(entity);
         }
 
+        /// <summary>
+        /// Map create input to entity
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         protected virtual TEntity MapCreateInputToEntity(TCreateInput input)
         {
             var entity = ObjectMapper.Map<TEntity>(input);
@@ -72,7 +77,11 @@ namespace EasyNet.ApplicationService
             return entity;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Update
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public virtual async Task<TEntityDto> UpdateAsync(TUpdateInput input)
         {
             var entity = await Repository.GetAsync(input.Id);
@@ -84,12 +93,21 @@ namespace EasyNet.ApplicationService
             return MapToEntityDto(entity);
         }
 
+        /// <summary>
+        /// Map update input to entity
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="entity"></param>
         protected virtual void MapUpdateInputToEntity(TUpdateInput input, TEntity entity)
         {
             ObjectMapper.Map(input, entity);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public virtual Task DeleteAsync(TPrimaryKey id)
         {
             return Repository.DeleteAsync(id);

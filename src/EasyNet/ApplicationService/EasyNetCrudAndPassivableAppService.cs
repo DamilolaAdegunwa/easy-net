@@ -27,7 +27,7 @@ namespace EasyNet.ApplicationService
         }
     }
 
-    public abstract class EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>, IEasyNetCrudAndPassivableAppService<TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>
+    public abstract class EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>
         where TEntity : class, IEntity<TPrimaryKey>, IPassivable
         where TEntityDto : IEntityDto<TPrimaryKey>
         where TUpdateInput : IEntityDto<TPrimaryKey>
@@ -36,7 +36,11 @@ namespace EasyNet.ApplicationService
         {
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Archive
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task ArchiveAsync(TPrimaryKey id)
         {
             var entity = await Repository.GetAsync(id);
@@ -55,7 +59,11 @@ namespace EasyNet.ApplicationService
             throw new EasyNetException($"The {entity.GetType().AssemblyQualifiedName} is not inherit from {typeof(IPassivable)}.");
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Activate
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task ActivateAsync(TPrimaryKey id)
         {
             var entity = await Repository.GetAsync(id);
