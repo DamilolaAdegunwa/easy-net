@@ -29,7 +29,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
                 .AddEfCore<EfCoreContext>(options =>
                 {
                     options.UseSqlite(CreateInMemoryDatabase());
-                }, true);
+                });
 
             _serviceProvider = services.BuildServiceProvider();
         }
