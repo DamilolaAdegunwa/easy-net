@@ -6,33 +6,39 @@ using EasyNet.Dto;
 
 namespace EasyNet.ApplicationService
 {
-    /// <summary>
-    /// Derive your application services from this class.
-    /// </summary>
-    public abstract class EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TEntityDto, TEntityDto>
-        where TEntity : class, IEntity<TPrimaryKey>, IPassivable
-        where TEntityDto : IEntityDto<TPrimaryKey>
+    public abstract class EasyNetPassivableAppService<TEntity, TEntityDto, TGetAllInput> : EasyNetPassivableAppService<TEntity, TEntityDto, int, TGetAllInput, TEntityDto, TEntityDto>
+        where TEntity : class, IEntity<int>, IPassivable
+        where TEntityDto : IEntityDto<int>
     {
-        protected EasyNetCrudAndPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
+        protected EasyNetPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
         {
         }
     }
 
-    public abstract class EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput> : EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TEntityDto>
+    public abstract class EasyNetPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TEntityDto, TEntityDto>
         where TEntity : class, IEntity<TPrimaryKey>, IPassivable
         where TEntityDto : IEntityDto<TPrimaryKey>
     {
-        protected EasyNetCrudAndPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
+        protected EasyNetPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
         {
         }
     }
 
-    public abstract class EasyNetCrudAndPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>
+    public abstract class EasyNetPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput> : EasyNetPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TEntityDto>
+        where TEntity : class, IEntity<TPrimaryKey>, IPassivable
+        where TEntityDto : IEntityDto<TPrimaryKey>
+    {
+        protected EasyNetPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
+        {
+        }
+    }
+
+    public abstract class EasyNetPassivableAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput> : EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TCreateInput, TUpdateInput>
         where TEntity : class, IEntity<TPrimaryKey>, IPassivable
         where TEntityDto : IEntityDto<TPrimaryKey>
         where TUpdateInput : IEntityDto<TPrimaryKey>
     {
-        protected EasyNetCrudAndPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
+        protected EasyNetPassivableAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
         {
         }
 

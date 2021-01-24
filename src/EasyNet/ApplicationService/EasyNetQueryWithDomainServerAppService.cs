@@ -3,16 +3,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Entities;
-using EasyNet.Domain.Repositories;
+using EasyNet.Domain.Services;
 using EasyNet.Dto;
 
 namespace EasyNet.ApplicationService
 {
-    public abstract class EasyNetQueryAppService<TEntity, TEntityDto, TGetAllInput> : EasyNetQueryAppService<TEntity, TEntityDto, int, TGetAllInput>
+    public abstract class EasyNetQueryWithDomainServerAppService<TEntity, TEntityDto, TDomainService, TGetAllInput> : EasyNetQueryWithDomainServerAppService<TEntity, TEntityDto, int, TDomainService, TGetAllInput>
         where TEntity : class, IEntity<int>
         where TEntityDto : IEntityDto<int>
+        where TDomainService : EasyNetQueryDomainService<TEntity, int>
     {
-        protected EasyNetQueryAppService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
+        protected EasyNetQueryWithDomainServerAppService(IIocResolver iocResolver, TDomainService domainService) : base(iocResolver, domainService)
         {
         }
     }
@@ -21,16 +22,17 @@ namespace EasyNet.ApplicationService
     /// Derive your application services from this class.
     /// </summary>
 
-    public abstract class EasyNetQueryAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetAppService
+    public abstract class EasyNetQueryWithDomainServerAppService<TEntity, TEntityDto, TPrimaryKey, TDomainService, TGetAllInput> : EasyNetAppService
         where TEntity : class, IEntity<TPrimaryKey>
         where TEntityDto : IEntityDto<TPrimaryKey>
+        where TDomainService : EasyNetQueryDomainService<TEntity, TPrimaryKey>
     {
-        protected EasyNetQueryAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver)
+        protected EasyNetQueryWithDomainServerAppService(IIocResolver iocResolver, TDomainService domainService) : base(iocResolver)
         {
-            Repository = repository;
+            DomainService = domainService;
         }
 
-        protected IRepository<TEntity, TPrimaryKey> Repository { get; }
+        protected TDomainService DomainService { get; }
 
         /// <summary>
         /// Get
@@ -39,7 +41,7 @@ namespace EasyNet.ApplicationService
         /// <returns></returns>
         public async Task<TEntityDto> GetAsync(TPrimaryKey id)
         {
-            var entity = await Repository.GetAsync(id);
+            var entity = await DomainService.GetByIdAsync(id);
 
             return MapToEntityDto(entity);
         }
@@ -51,7 +53,7 @@ namespace EasyNet.ApplicationService
         /// <returns></returns>
         public async Task<List<TEntityDto>> GetAllAsync(TGetAllInput input)
         {
-            var entities = await Repository.GetAllListAsync();
+            var entities = await DomainService.GetAllAsync();
 
             return entities.Select(MapToEntityDto).ToList();
         }

@@ -6,11 +6,16 @@ using EasyNet.Dto;
 
 namespace EasyNet.ApplicationService
 {
-    /// <summary>
-    /// Derive your application services from this class.
-    /// </summary>
-    public abstract class EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetCrudAppService<TEntity,
-            TEntityDto, TPrimaryKey, TGetAllInput, TEntityDto, TEntityDto>
+    public abstract class EasyNetCrudAppService<TEntity, TEntityDto, TGetAllInput> : EasyNetCrudAppService<TEntity, TEntityDto, int, TGetAllInput, TEntityDto, TEntityDto>
+        where TEntity : class, IEntity<int>
+        where TEntityDto : IEntityDto<int>
+    {
+        protected EasyNetCrudAppService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
+        {
+        }
+    }
+
+    public abstract class EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput> : EasyNetCrudAppService<TEntity, TEntityDto, TPrimaryKey, TGetAllInput, TEntityDto, TEntityDto>
         where TEntity : class, IEntity<TPrimaryKey>
         where TEntityDto : IEntityDto<TPrimaryKey>
     {

@@ -4,12 +4,11 @@ using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 using EasyNet.Runtime.Session;
 
-namespace EasyNet.ApplicationService
+namespace EasyNet.Domain.Services
 {
-    public abstract class EasyNetAppService
+    public abstract class EasyNetDomainService
     {
-
-        protected EasyNetAppService(IIocResolver iocResolver)
+        protected EasyNetDomainService(IIocResolver iocResolver)
         {
             IocResolver = iocResolver;
         }
@@ -23,18 +22,21 @@ namespace EasyNet.ApplicationService
         private IMapper _objectMapper;
     }
 
-    public abstract class EasyNetAppService<TEntity> : EasyNetAppService<TEntity, int>
+    public abstract class EasyNetDomainService<TEntity> : EasyNetDomainService<TEntity, int>
         where TEntity : class, IEntity<int>
     {
-        protected EasyNetAppService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
+
+        protected EasyNetDomainService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
         {
         }
     }
 
-    public abstract class EasyNetAppService<TEntity, TPrimaryKey> : EasyNetAppService
+    public abstract class EasyNetDomainService<TEntity, TPrimaryKey> : EasyNetDomainService
         where TEntity : class, IEntity<TPrimaryKey>
     {
-        protected EasyNetAppService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver)
+
+
+        protected EasyNetDomainService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver)
         {
             Repository = repository;
         }
