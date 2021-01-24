@@ -1,5 +1,5 @@
 ﻿using EasyNet.Domain.Uow;
-using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.EntityFrameworkCore.Domain.Uow;
 using EasyNet.Runtime.Initialization;
 using Microsoft.EntityFrameworkCore;
 

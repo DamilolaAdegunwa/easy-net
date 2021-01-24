@@ -1,7 +1,7 @@
 ﻿using EasyNet.Domain.Entities;
-using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.EntityFrameworkCore.Domain.Uow;
 
-namespace EasyNet.EntityFrameworkCore.Repositories
+namespace EasyNet.EntityFrameworkCore.Domain.Repositories
 {
     public class EfCoreRepositoryBase<TDbContext, TEntity> : EfCoreRepositoryBase<TDbContext, TEntity, int>, IEfCoreRepository<TEntity>
          where TEntity : class, IEntity<int>

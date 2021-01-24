@@ -3,7 +3,7 @@ using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyNet.EntityFrameworkCore.Repositories
+namespace EasyNet.EntityFrameworkCore.Domain.Repositories
 {
     public interface IEfCoreRepository<TEntity, TPrimaryKey> : IRepository<TEntity, TPrimaryKey> 
         where TEntity : class, IEntity<TPrimaryKey>

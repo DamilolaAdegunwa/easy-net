@@ -2,7 +2,7 @@
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Repositories;
 using EasyNet.EntityFrameworkCore.DependencyInjection;
-using EasyNet.EntityFrameworkCore.Repositories;
+using EasyNet.EntityFrameworkCore.Domain.Repositories;
 using EasyNet.Identity.EntityFrameworkCore.DependencyInjection;
 using EasyNet.Identity.EntityFrameworkCore.Domain;
 using EasyNet.Identity.EntityFrameworkCore.Domain.Entities;

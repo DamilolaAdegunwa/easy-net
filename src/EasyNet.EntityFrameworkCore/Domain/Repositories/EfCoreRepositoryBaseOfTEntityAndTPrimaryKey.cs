@@ -4,10 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EasyNet.Domain.Entities;
-using EasyNet.EntityFrameworkCore.Uow;
+using EasyNet.EntityFrameworkCore.Domain.Uow;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyNet.EntityFrameworkCore.Repositories
+namespace EasyNet.EntityFrameworkCore.Domain.Repositories
 {
     /// <summary>
     /// Implements IRepository for Entity Framework.

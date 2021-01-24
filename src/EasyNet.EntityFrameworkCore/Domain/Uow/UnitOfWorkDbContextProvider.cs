@@ -1,7 +1,7 @@
 ﻿using EasyNet.Domain.Uow;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyNet.EntityFrameworkCore.Uow
+namespace EasyNet.EntityFrameworkCore.Domain.Uow
 {
     /// <summary>
     /// Implements <see cref="IDbContextProvider{TDbContext}"/> that gets DbContext from active unit of work.

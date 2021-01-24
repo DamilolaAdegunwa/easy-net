@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EasyNet.DependencyInjection;
 using EasyNet.Domain.Uow;
 using EasyNet.Extensions;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 
-namespace EasyNet.EntityFrameworkCore.Uow
+namespace EasyNet.EntityFrameworkCore.Domain.Uow
 {
     /// <summary>
     /// Implements Unit of work for Entity Framework.

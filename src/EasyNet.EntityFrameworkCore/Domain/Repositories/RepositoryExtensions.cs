@@ -3,7 +3,7 @@ using System.Linq;
 using EasyNet.Domain.Entities;
 using EasyNet.Domain.Repositories;
 
-namespace EasyNet.EntityFrameworkCore.Repositories
+namespace EasyNet.EntityFrameworkCore.Domain.Repositories
 {
     public static class RepositoryExtensions
     {

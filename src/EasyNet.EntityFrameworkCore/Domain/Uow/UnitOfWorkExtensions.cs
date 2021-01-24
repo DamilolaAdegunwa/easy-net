@@ -2,7 +2,7 @@
 using EasyNet.Domain.Uow;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyNet.EntityFrameworkCore.Uow
+namespace EasyNet.EntityFrameworkCore.Domain.Uow
 {
     /// <summary>
     /// Extension methods for UnitOfWork.

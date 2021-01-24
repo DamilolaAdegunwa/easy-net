@@ -35,6 +35,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.RazorPages" Version="2.1.11" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <DefineConstants>$(DefineConstants);Net50</DefineConstants>
   </PropertyGroup>
