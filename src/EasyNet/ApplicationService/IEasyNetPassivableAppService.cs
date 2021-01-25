@@ -6,7 +6,7 @@ namespace EasyNet.ApplicationService
     {
     }
 
-    public interface IEasyNetPassivableAppService<in TPrimaryKey>
+    public interface IEasyNetPassivableAppService<in TPrimaryKey> : IEasyNetAppService
     {
         Task ArchiveAsync(TPrimaryKey id);
 

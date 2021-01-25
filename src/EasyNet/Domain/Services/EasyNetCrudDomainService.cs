@@ -5,7 +5,7 @@ using EasyNet.Domain.Repositories;
 
 namespace EasyNet.Domain.Services
 {
-    public abstract class EasyNetCrudDomainService<TEntity> : EasyNetCrudDomainService<TEntity, int>
+    public abstract class EasyNetCrudDomainService<TEntity> : EasyNetCrudDomainService<TEntity, int>, IEasyNetCrudDomainService<TEntity>
         where TEntity : class, IEntity<int>
     {
         protected EasyNetCrudDomainService(IIocResolver iocResolver, IRepository<TEntity, int> repository) : base(iocResolver, repository)
@@ -13,7 +13,8 @@ namespace EasyNet.Domain.Services
         }
     }
 
-    public abstract class EasyNetCrudDomainService<TEntity, TPrimaryKey> : EasyNetQueryDomainService<TEntity, TPrimaryKey> where TEntity : class, IEntity<TPrimaryKey>
+    public abstract class EasyNetCrudDomainService<TEntity, TPrimaryKey> : EasyNetQueryDomainService<TEntity, TPrimaryKey>, IEasyNetCrudDomainService<TEntity, TPrimaryKey>
+        where TEntity : class, IEntity<TPrimaryKey>
     {
         protected EasyNetCrudDomainService(IIocResolver iocResolver, IRepository<TEntity, TPrimaryKey> repository) : base(iocResolver, repository)
         {

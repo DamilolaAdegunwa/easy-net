@@ -6,7 +6,7 @@ using EasyNet.Runtime.Session;
 
 namespace EasyNet.Domain.Services
 {
-    public abstract class EasyNetDomainService
+    public abstract class EasyNetDomainService : IEasyNetDomainService
     {
         protected EasyNetDomainService(IIocResolver iocResolver)
         {

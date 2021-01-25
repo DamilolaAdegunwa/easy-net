@@ -18,12 +18,12 @@ namespace EasyNet.ApplicationService
     {
     }
 
-    public interface IEasyNetCrudAppService<TEntityDto, in TPrimaryKey, in TCreateInput, in TUpdateInput>
+    public interface IEasyNetCrudAppService<TEntityDto, in TPrimaryKey, in TCreateInput, in TUpdateInput> : IEasyNetAppService
         where TEntityDto : IEntityDto<TPrimaryKey>
         where TUpdateInput : IEntityDto<TPrimaryKey>
     {
         Task<TEntityDto> CreateAsync(TCreateInput input);
-        
+
         Task<TEntityDto> UpdateAsync(TUpdateInput input);
 
         Task DeleteAsync(TPrimaryKey id);

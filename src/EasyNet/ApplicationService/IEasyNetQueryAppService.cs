@@ -9,7 +9,7 @@ namespace EasyNet.ApplicationService
     {
     }
 
-    public interface IEasyNetQueryAppService<TEntityDto, in TPrimaryKey, in TGetAllInput>
+    public interface IEasyNetQueryAppService<TEntityDto, in TPrimaryKey, in TGetAllInput> : IEasyNetAppService
         where TEntityDto : IEntityDto<TPrimaryKey>
     {
         Task<TEntityDto> GetAsync(TPrimaryKey id);
