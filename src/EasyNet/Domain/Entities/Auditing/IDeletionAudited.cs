@@ -1,14 +1,10 @@
 ﻿namespace EasyNet.Domain.Entities.Auditing
 {
-    public interface IDeletionAudited : IHasDeletionTime
-    {
-    }
-
-	/// <summary>
+    /// <summary>
 	/// This interface is implemented by entities which wanted to store deletion information (who and when deleted).
 	/// </summary>
 	/// <typeparam name="TUserPrimaryKey">Type of the primary key of the user</typeparam>
-	public interface IDeletionAudited<TUserPrimaryKey> : IDeletionAudited
+	public interface IDeletionAudited<TUserPrimaryKey> : IHasDeletionTime
 		where TUserPrimaryKey : struct
 	{
 
