@@ -23,7 +23,7 @@ namespace EasyNet.Domain.Entities.Auditing
                 }
             }
 
-            if (entity.GetType().HasImplementedRawGeneric(typeof(ICreationAudited<>)))
+            if (entity is ICreationAudited || entity.GetType().HasImplementedRawGeneric(typeof(ICreationAudited<>)))
             {
                 SetUserIdType(entity, userId, typeof(ICreationAudited<>), "CreatorUserId");
             }
@@ -42,7 +42,7 @@ namespace EasyNet.Domain.Entities.Auditing
                 hasCreationTimeEntity.LastModificationTime = Clock.Now;
             }
 
-            if (entity.GetType().HasImplementedRawGeneric(typeof(IModificationAudited<>)))
+            if (entity is IModificationAudited || entity.GetType().HasImplementedRawGeneric(typeof(IModificationAudited<>)))
             {
                 SetUserIdType(entity, userId, typeof(IModificationAudited<>), "LastModifierUserId");
             }
@@ -66,7 +66,7 @@ namespace EasyNet.Domain.Entities.Auditing
                 hasCreationTimeEntity.DeletionTime = Clock.Now;
             }
 
-            if (entity.GetType().HasImplementedRawGeneric(typeof(IModificationAudited<>)))
+            if (entity is IDeletionAudited || entity.GetType().HasImplementedRawGeneric(typeof(IModificationAudited<>)))
             {
                 SetUserIdType(entity, userId, typeof(IDeletionAudited<>), "DeleterUserId");
             }

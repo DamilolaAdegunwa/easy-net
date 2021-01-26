@@ -3,6 +3,13 @@
     /// <summary>
     /// Implement this interface for an entity which must have TenantId.
     /// </summary>
+    public interface IMustHaveTenant : IMustHaveTenant<int>
+    {
+    }
+
+    /// <summary>
+    /// Implement this interface for an entity which must have TenantId.
+    /// </summary>
     public interface IMustHaveTenant<TTenantKey> where TTenantKey : struct
     {
         /// <summary>

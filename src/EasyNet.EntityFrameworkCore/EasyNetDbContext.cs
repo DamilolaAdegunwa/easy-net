@@ -8,6 +8,7 @@ using EasyNet.Domain.Entities;
 using EasyNet.Domain.Entities.Auditing;
 using EasyNet.Domain.Uow;
 using EasyNet.EntityFrameworkCore.Extensions;
+using EasyNet.Extensions;
 using EasyNet.Linq;
 using EasyNet.Runtime.Session;
 using Microsoft.EntityFrameworkCore;
@@ -58,24 +59,21 @@ namespace EasyNet.EntityFrameworkCore
 
                 if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
                 {
-                    if (IsSoftDeleteFilterEnabled)
-                    {
-                        Expression<Func<TEntity, bool>> softDeleteFilter = e => ((ISoftDelete)e).IsDeleted == false;
-                        expression = softDeleteFilter;
-                    }
+                    Expression<Func<TEntity, bool>> softDeleteFilter = e => !IsSoftDeleteFilterEnabled || !((ISoftDelete)e).IsDeleted;
+                    expression = softDeleteFilter;
                 }
 
-                if (typeof(IMustHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
+                if (IsMustHaveTenantFilterEnabled)
                 {
-                    if (IsMustHaveTenantFilterEnabled)
+                    if (typeof(TEntity).HasImplementedRawGeneric(typeof(IMustHaveTenant<>)))
                     {
                         //Expression<Func<TEntity, bool>> mustHaveTenantFilter = e => ((IMustHaveTenant)e).TenantId == CurrentTenantId;
                         //expression = expression == null ? mustHaveTenantFilter : CombineExpressions(expression, mustHaveTenantFilter);
                     }
                 }
-                else if (typeof(IMayHaveTenant<>).IsAssignableFrom(typeof(TEntity)))
+                else if (IsMayHaveTenantFilterEnabled)
                 {
-                    if (IsMayHaveTenantFilterEnabled)
+                    if (typeof(TEntity).HasImplementedRawGeneric(typeof(IMayHaveTenant<>)))
                     {
                         //Expression<Func<TEntity, bool>> mayHaveTenantFilter = e => ((IMayHaveTenant)e).TenantId == CurrentTenantId;
                         //expression = expression == null ? mayHaveTenantFilter : CombineExpressions(expression, mayHaveTenantFilter);
