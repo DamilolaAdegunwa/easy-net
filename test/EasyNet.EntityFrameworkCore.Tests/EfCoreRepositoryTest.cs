@@ -1040,51 +1040,55 @@ namespace EasyNet.EntityFrameworkCore.Tests
         {
             // Arrange
             using var uow = BeginUow();
-            var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
+            using (((IActiveUnitOfWork)uow).DisableFilter(EasyNetDataFilters.SoftDelete))
+            {
+                var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
 
-            #region Delete by id
+                #region Delete by id
 
-            // Act
-            deletionAuditedRepo.Delete(1);
+                // Act
+                deletionAuditedRepo.Delete(1);
 
-            ((IUnitOfWork)uow).SaveChanges();
+                ((IUnitOfWork)uow).SaveChanges();
 
-            // Assert
-            Assert.Equal(1, deletionAuditedRepo.GetAll().AsNoTracking().Single(p => p.Id == 1).DeleterUserId);
-            Assert.Equal(2, deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsDeleted));
-            Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
+                // Assert
+                Assert.Equal(1, deletionAuditedRepo.GetAll().AsNoTracking().Single(p => p.Id == 1).DeleterUserId);
+                Assert.Equal(2, deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsDeleted));
+                Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
 
-            #endregion
+                #endregion
 
-            #region Delete by entity
+                #region Delete by entity
 
-            // Act
-            deletionAuditedRepo.Delete(deletionAuditedRepo.Get(2));
+                // Act
+                deletionAuditedRepo.Delete(deletionAuditedRepo.Get(2));
 
-            ((IUnitOfWork)uow).SaveChanges();
+                ((IUnitOfWork)uow).SaveChanges();
 
-            // Assert
-            Assert.Equal(1, deletionAuditedRepo.GetAll().AsNoTracking().Single(p => p.Id == 2).DeleterUserId);
-            Assert.Equal(3, deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsDeleted));
-            Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
+                // Assert
+                Assert.Equal(1, deletionAuditedRepo.GetAll().AsNoTracking().Single(p => p.Id == 2).DeleterUserId);
+                Assert.Equal(3, deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsDeleted));
+                Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
 
-            #endregion
+                #endregion
 
-            #region Delete by predicate
+                #region Delete by predicate
 
-            // Act
-            deletionAuditedRepo.Delete(p => p.IsActive == false);
+                // Act
+                deletionAuditedRepo.Delete(p => p.IsActive == false);
 
-            ((IUnitOfWork)uow).SaveChanges();
+                ((IUnitOfWork)uow).SaveChanges();
 
-            // Assert
-            Assert.Equal(3, deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsActive == false && p.IsDeleted));
-            Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
+                // Assert
+                Assert.Equal(3,
+                    deletionAuditedRepo.GetAll().AsNoTracking().Count(p => p.IsActive == false && p.IsDeleted));
+                Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
 
-            #endregion
+                #endregion
 
-            // Complete uow
-            uow.Complete();
+                // Complete uow
+                uow.Complete();
+            }
         }
 
         [Fact]
@@ -1092,51 +1096,58 @@ namespace EasyNet.EntityFrameworkCore.Tests
         {
             // Arrange
             using var uow = BeginUow();
-            var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
+            using (((IActiveUnitOfWork)uow).DisableFilter(EasyNetDataFilters.SoftDelete))
+            {
+                var deletionAuditedRepo = GetRepository<TestDeletionAudited>();
 
-            #region Delete by id
+                #region Delete by id
 
-            // Act
-            await deletionAuditedRepo.DeleteAsync(1);
+                // Act
+                await deletionAuditedRepo.DeleteAsync(1);
 
-            await ((IUnitOfWork)uow).SaveChangesAsync();
+                await ((IUnitOfWork)uow).SaveChangesAsync();
 
-            // Assert
-            Assert.Equal(1, (await deletionAuditedRepo.GetAll().AsNoTracking().SingleAsync(p => p.Id == 1)).DeleterUserId);
-            Assert.Equal(2, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync(p => p.IsDeleted));
-            Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
+                // Assert
+                Assert.Equal(1,
+                    (await deletionAuditedRepo.GetAll().AsNoTracking().SingleAsync(p => p.Id == 1)).DeleterUserId);
+                Assert.Equal(2, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync(p => p.IsDeleted));
+                Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
 
-            #endregion
+                #endregion
 
-            #region Delete by entity
+                #region Delete by entity
 
-            // Act
-            await deletionAuditedRepo.DeleteAsync(await deletionAuditedRepo.GetAsync(2));
+                // Act
+                await deletionAuditedRepo.DeleteAsync(await deletionAuditedRepo.GetAsync(2));
 
-            await ((IUnitOfWork)uow).SaveChangesAsync();
+                await ((IUnitOfWork)uow).SaveChangesAsync();
 
-            // Assert
-            Assert.Equal(1, (await deletionAuditedRepo.GetAll().AsNoTracking().SingleAsync(p => p.Id == 2)).DeleterUserId);
-            Assert.Equal(3, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync(p => p.IsDeleted));
-            Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
+                // Assert
+                Assert.Equal(1,
+                    (await deletionAuditedRepo.GetAll().AsNoTracking().SingleAsync(p => p.Id == 2)).DeleterUserId);
+                Assert.Equal(3, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync(p => p.IsDeleted));
+                Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
 
-            #endregion
+                #endregion
 
-            #region Delete by predicate
+                #region Delete by predicate
 
-            // Act
-            await deletionAuditedRepo.DeleteAsync(p => p.IsActive == false);
+                // Act
+                await deletionAuditedRepo.DeleteAsync(p => p.IsActive == false);
 
-            await ((IUnitOfWork)uow).SaveChangesAsync();
+                await ((IUnitOfWork)uow).SaveChangesAsync();
 
-            // Assert
-            Assert.Equal(3, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync(p => p.IsActive == false && p.IsDeleted));
-            Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
+                // Assert
+                Assert.Equal(3,
+                    await deletionAuditedRepo.GetAll().AsNoTracking()
+                        .CountAsync(p => p.IsActive == false && p.IsDeleted));
+                Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
 
-            #endregion
+                #endregion
 
-            // Complete uow
-            await uow.CompleteAsync();
+                // Complete uow
+                await uow.CompleteAsync();
+            }
         }
 
         #endregion
@@ -1190,7 +1201,7 @@ namespace EasyNet.EntityFrameworkCore.Tests
             context.SaveChanges();
             context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = false });
             context.SaveChanges();
-            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = false, IsDeleted = true});
+            context.TestDeletionAudited.Add(new TestDeletionAudited { IsActive = false, IsDeleted = true });
             context.SaveChanges();
 
             // Clear all change trackers

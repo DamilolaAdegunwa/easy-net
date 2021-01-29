@@ -100,12 +100,6 @@ namespace EasyNet.Domain.Uow
         public abstract Task SaveChangesAsync();
 
         /// <inheritdoc/>
-        public bool IsFilterEnabled(string filterName)
-        {
-            return GetFilter(filterName).IsEnabled;
-        }
-
-        /// <inheritdoc/>
         public void Complete()
         {
             PreventMultipleComplete();
@@ -137,6 +131,52 @@ namespace EasyNet.Domain.Uow
                 _exception = ex;
                 throw;
             }
+        }
+
+        /// <inheritdoc/>
+        public bool IsFilterEnabled(string filterName)
+        {
+            return GetFilter(filterName).IsEnabled;
+        }
+
+        /// <inheritdoc/>
+        public IDisposable DisableFilter(params string[] filterNames)
+        {
+            //TODO: Check if filters exists?
+
+            var disabledFilters = new List<string>();
+
+            foreach (var filterName in filterNames)
+            {
+                var filterIndex = GetFilterIndex(filterName);
+                if (_filters[filterIndex].IsEnabled)
+                {
+                    disabledFilters.Add(filterName);
+                    _filters[filterIndex] = new DataFilterConfiguration(_filters[filterIndex], false);
+                }
+            }
+
+            return new DisposeAction(() => EnableFilter(disabledFilters.ToArray()));
+        }
+
+        /// <inheritdoc/>
+        public IDisposable EnableFilter(params string[] filterNames)
+        {
+            //TODO: Check if filters exists?
+
+            var enabledFilters = new List<string>();
+
+            foreach (var filterName in filterNames)
+            {
+                var filterIndex = GetFilterIndex(filterName);
+                if (!_filters[filterIndex].IsEnabled)
+                {
+                    enabledFilters.Add(filterName);
+                    _filters[filterIndex] = new DataFilterConfiguration(_filters[filterIndex], true);
+                }
+            }
+
+            return new DisposeAction(() => DisableFilter(enabledFilters.ToArray()));
         }
 
         /// <inheritdoc/>
@@ -235,6 +275,17 @@ namespace EasyNet.Domain.Uow
             }
 
             return filter;
+        }
+
+        private int GetFilterIndex(string filterName)
+        {
+            var filterIndex = _filters.FindIndex(f => f.FilterName == filterName);
+            if (filterIndex < 0)
+            {
+                throw new EasyNetException("Unknown filter name: " + filterName + ". Be sure this filter is registered before.");
+            }
+
+            return filterIndex;
         }
 
         public override string ToString()
