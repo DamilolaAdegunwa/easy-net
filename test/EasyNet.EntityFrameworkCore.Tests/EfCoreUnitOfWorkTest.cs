@@ -128,53 +128,6 @@ namespace EasyNet.EntityFrameworkCore.Tests
             #endregion
         }
 
-        //#region Helper
-
-        //private ICurrentUnitOfWorkProvider GetCurrentUnitOfWorkProvider()
-        //{
-        //    return new AsyncLocalCurrentUnitOfWorkProvider();
-        //}
-
-        //private IIocResolver GetIocResolver()
-        //{
-        //    var iocResolverMock = new Mock<IIocResolver>();
-        //    iocResolverMock.Setup(p => p.Resolve<IUnitOfWork>()).Returns(() =>
-        //    {
-        //        return new EfCoreUnitOfWork(GetConnectionStringResolver(), GetDbContextResolver(), new UnitOfWorkDefaultOptions());
-        //    });
-
-        //    return iocResolverMock.Object;
-        //}
-
-        //private IConnectionStringResolver GetConnectionStringResolver()
-        //{
-        //    var connectionStringResolverMock = new Moq.Mock<IConnectionStringResolver>();
-        //    connectionStringResolverMock.Setup(p => p.GetNameOrConnectionString()).Returns(_msFixture.ConnectionString);
-
-        //    return connectionStringResolverMock.Object;
-        //}
-
-        //private IDbContextProvider<UnitTestContext> GetDbContextProvider()
-        //{
-        //    return new UnitOfWorkDbContextProvider<UnitTestContext>(GetCurrentUnitOfWorkProvider());
-        //}
-
-        //private IDbContextResolver GetDbContextResolver()
-        //{
-        //    var dbContextResolverMock = new Moq.Mock<IDbContextResolver>();
-        //    dbContextResolverMock.Setup(p => p.Resolve<UnitTestContext>(It.IsRegex(""), null)).Returns(_msFixture.GetDbContext());
-
-        //    return dbContextResolverMock.Object;
-        //}
-
-        //private IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
-        //{
-        //    return new EfCoreRepositoryBase<UnitTestContext, TEntity>(GetDbContextProvider());
-        //}
-
-
-        //#endregion
-
         private IUnitOfWork GetEfCoreUnitOfWork()
         {
             return _serviceProvider.GetService<IUnitOfWork>();

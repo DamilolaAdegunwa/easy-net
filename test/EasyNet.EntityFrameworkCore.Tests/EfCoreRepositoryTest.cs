@@ -1085,10 +1085,10 @@ namespace EasyNet.EntityFrameworkCore.Tests
                 Assert.Equal(6, deletionAuditedRepo.GetAll().AsNoTracking().Count());
 
                 #endregion
-
-                // Complete uow
-                uow.Complete();
             }
+
+            // Complete uow
+            uow.Complete();
         }
 
         [Fact]
@@ -1144,10 +1144,10 @@ namespace EasyNet.EntityFrameworkCore.Tests
                 Assert.Equal(6, await deletionAuditedRepo.GetAll().AsNoTracking().CountAsync());
 
                 #endregion
-
-                // Complete uow
-                await uow.CompleteAsync();
             }
+
+            // Complete uow
+            await uow.CompleteAsync();
         }
 
         #endregion
